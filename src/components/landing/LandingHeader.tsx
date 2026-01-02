@@ -29,18 +29,11 @@ export const LandingHeader = () => {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" className="text-white hover:bg-white/20">
-              Đăng nhập
-            </Button>
-          </Link>
-          <Link to="/login">
-            <Button className="bg-primary hover:bg-primary/90">
-              Đăng ký
-            </Button>
-          </Link>
-        </div>
+        <Link to="/login">
+          <Button variant="ghost" className="text-white hover:bg-white/20">
+            Đăng nhập
+          </Button>
+        </Link>
       </div>
     </header>
   );
