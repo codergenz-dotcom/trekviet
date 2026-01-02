@@ -271,12 +271,14 @@ const TripDetail = () => {
                       </p>
                     </div>
 
-                    <Button
-                      onClick={handleJoin}
-                      className="w-full h-12 text-base font-semibold"
-                    >
-                      Tham gia
-                    </Button>
+                    {!isOrganizer && (
+                      <Button
+                        onClick={handleJoin}
+                        className="w-full h-12 text-base font-semibold"
+                      >
+                        Tham gia
+                      </Button>
+                    )}
                   </div>
                 </div>
               </TabsContent>
