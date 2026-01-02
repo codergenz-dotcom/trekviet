@@ -1,0 +1,205 @@
+import { Plus, X, ImagePlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import type { TripFormData } from "@/pages/CreateTripSelfOrganize";
+
+interface BasicInfoTabProps {
+  formData: TripFormData;
+  updateFormData: (updates: Partial<TripFormData>) => void;
+}
+
+const locations = [
+  "Tây Bắc",
+  "Đông Bắc", 
+  "Miền Trung",
+  "Tây Nguyên",
+  "Đông Nam Bộ",
+];
+
+const difficulties = [
+  { value: "easy", label: "Dễ" },
+  { value: "medium", label: "Trung bình" },
+  { value: "hard", label: "Khó" },
+  { value: "expert", label: "Chuyên gia" },
+];
+
+export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) => {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Left side - Form fields */}
+      <div className="lg:col-span-2 space-y-5">
+        {/* Trip name */}
+        <div className="space-y-2">
+          <Label htmlFor="name">Tên chuyến:</Label>
+          <Input
+            id="name"
+            placeholder="Nhập tên chuyến đi"
+            value={formData.name}
+            onChange={(e) => updateFormData({ name: e.target.value })}
+          />
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label>Địa điểm:</Label>
+          <Select
+            value={formData.location}
+            onValueChange={(value) => updateFormData({ location: value })}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="Chọn địa điểm" />
+            </SelectTrigger>
+            <SelectContent className="bg-background">
+              {locations.map((loc) => (
+                <SelectItem key={loc} value={loc}>
+                  {loc}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Difficulty */}
+        <div className="space-y-2">
+          <Label>Độ khó:</Label>
+          <Select
+            value={formData.difficulty}
+            onValueChange={(value) => updateFormData({ difficulty: value })}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="Chọn độ khó" />
+            </SelectTrigger>
+            <SelectContent className="bg-background">
+              {difficulties.map((diff) => (
+                <SelectItem key={diff.value} value={diff.value}>
+                  {diff.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Departure date */}
+        <div className="space-y-2">
+          <Label>Khởi hành:</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !formData.departureDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.departureDate
+                  ? format(formData.departureDate, "PPP", { locale: vi })
+                  : "Chọn ngày khởi hành"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-background" align="start">
+              <Calendar
+                mode="single"
+                selected={formData.departureDate}
+                onSelect={(date) => updateFormData({ departureDate: date })}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Registration deadline */}
+        <div className="space-y-2">
+          <Label>Đóng tour/thời hạn đăng ký:</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !formData.registrationDeadline && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.registrationDeadline
+                  ? format(formData.registrationDeadline, "PPP", { locale: vi })
+                  : "Chọn thời hạn đăng ký"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-background" align="start">
+              <Calendar
+                mode="single"
+                selected={formData.registrationDeadline}
+                onSelect={(date) => updateFormData({ registrationDeadline: date })}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Contact info */}
+        <div className="space-y-2">
+          <Label>Liên hệ:</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              placeholder="Email"
+              type="email"
+              value={formData.contactEmail}
+              onChange={(e) => updateFormData({ contactEmail: e.target.value })}
+            />
+            <Input
+              placeholder="SĐT (Zalo)"
+              value={formData.contactPhone}
+              onChange={(e) => updateFormData({ contactPhone: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Discussion group link */}
+        <div className="space-y-2">
+          <Label htmlFor="discussionLink">Link nhóm thảo luận:</Label>
+          <Input
+            id="discussionLink"
+            placeholder="https://..."
+            value={formData.discussionLink}
+            onChange={(e) => updateFormData({ discussionLink: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Right side - Image upload */}
+      <div className="space-y-3">
+        <Label>Thêm ảnh</Label>
+        <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
+          <ImagePlus className="h-12 w-12 text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground text-center">
+            Kéo thả hoặc click để tải ảnh lên
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Ảnh đầu tiên hiển thị trên card trip
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
