@@ -9,7 +9,7 @@ import { CompletedTripCard } from '@/components/CompletedTripCard';
 import { mockTrips, mockCompletedTrips, type Trip } from '@/data/mockTrips';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
-import { usePorter } from '@/contexts/PorterContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const initialFilters: Filters = {
   locations: [],
@@ -22,7 +22,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { isPorter } = usePorter();
+  const { isPorter } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);

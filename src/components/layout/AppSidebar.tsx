@@ -59,22 +59,6 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {isPorter && (
-          <div className={cn("px-3 py-2", isCollapsed && "px-2")}>
-            <Button
-              onClick={() => navigate('/create-trip')}
-              className={cn(
-                "w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90",
-                isCollapsed && "px-0"
-              )}
-              size={isCollapsed ? "icon" : "default"}
-            >
-              <Plus className="h-4 w-4" />
-              {!isCollapsed && <span>Tạo chuyến đi</span>}
-            </Button>
-          </div>
-        )}
-        
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
