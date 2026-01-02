@@ -75,19 +75,19 @@ export const WhyChooseUs = () => {
               key={index} 
               variants={itemVariants}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="group text-center p-6 bg-background rounded-xl shadow-sm hover:shadow-md hover:bg-primary transition-all duration-300"
+              className="group text-center p-6 bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >
               <motion.div 
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ type: "spring", stiffness: 200, delay: index * 0.1 }}
-                className="w-16 h-16 bg-primary/10 group-hover:bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300"
+                className="w-16 h-16 bg-primary/10 group-hover:bg-primary rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300"
               >
                 <feature.icon className="h-8 w-8 text-primary group-hover:text-white transition-colors duration-300" />
               </motion.div>
-              <h3 className="font-semibold text-lg mb-2 group-hover:text-white transition-colors duration-300">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground group-hover:text-white/80 transition-colors duration-300">{feature.description}</p>
+              <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+              <p className="text-sm text-muted-foreground">{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>
