@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
+import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import CreateTrip from "./pages/CreateTrip";
@@ -24,6 +25,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          {/* Landing page */}
+          <Route path="/" element={<LandingPage />} />
           {/* Admin routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/porters" element={<AdminPorters />} />
@@ -33,7 +36,7 @@ const App = () => (
             element={
               <AppLayout>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/trips" element={<Index />} />
                   <Route path="/create-trip" element={<CreateTrip />} />
                   <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
                   <Route path="/trip/:id" element={<TripDetail />} />
