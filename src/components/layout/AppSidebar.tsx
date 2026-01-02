@@ -1,4 +1,4 @@
-import { Mountain, Calendar, Users, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
+import { Mountain, Calendar, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -23,10 +23,6 @@ const mainNavItems = [
   { title: 'Địa điểm', url: '/locations', icon: MapPin },
 ];
 
-const communityItems = [
-  { title: 'Thành viên', url: '/members', icon: Users },
-];
-
 const settingsItems = [
   { title: 'Cài đặt', url: '/settings', icon: Settings },
   { title: 'Trợ giúp', url: '/help', icon: HelpCircle },
@@ -37,7 +33,7 @@ export function AppSidebar() {
   const isCollapsed = state === 'collapsed';
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="[&[data-state=collapsed]]:w-16">
       <SidebarHeader className="border-b border-sidebar-border">
         <Link 
           to="/" 
@@ -60,7 +56,6 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Điều hướng</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
@@ -81,29 +76,8 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Cộng đồng</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {communityItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink
-                      to={item.url}
-                      className="flex items-center gap-2"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
+
 
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
