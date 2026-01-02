@@ -1,4 +1,4 @@
-import { Bell, User } from 'lucide-react';
+import { Bell, User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
@@ -11,8 +11,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+
 export function AppHeader() {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-border bg-background/95 backdrop-blur-sm px-4">
@@ -21,6 +24,19 @@ export function AppHeader() {
       <div className="flex-1" />
 
       <div className="flex items-center gap-2">
+        {/* Admin Menu */}
+        {isAdmin && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/admin')}
+            className="gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Admin
+          </Button>
+        )}
+
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative h-9 w-9">
           <Bell className="h-4 w-4" />
