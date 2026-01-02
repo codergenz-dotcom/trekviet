@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, User, Compass, Backpack } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,13 +46,19 @@ const formatDate = (dateStr: string) => {
 };
 
 export const TripCard = ({ trip, index }: TripCardProps) => {
+  const navigate = useNavigate();
   const spotsPercentage = (trip.spotsRemaining / trip.totalSpots) * 100;
   const isLowSpots = spotsPercentage <= 30;
 
+  const handleViewDetail = () => {
+    navigate(`/trip/${trip.id}`);
+  };
+
   return (
     <article
-      className="group bg-card rounded-2xl border border-border/60 shadow-card card-hover-lift overflow-hidden animate-fade-in"
+      className="group bg-card rounded-2xl border border-border/60 shadow-card card-hover-lift overflow-hidden animate-fade-in cursor-pointer"
       style={{ animationDelay: `${index * 80}ms` }}
+      onClick={handleViewDetail}
     >
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
@@ -159,6 +166,10 @@ export const TripCard = ({ trip, index }: TripCardProps) => {
               variant="default"
               size="sm"
               className="gradient-mountain text-primary-foreground shadow-button hover:opacity-90 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetail();
+              }}
             >
               Chi tiết
             </Button>
