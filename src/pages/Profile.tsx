@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save, Award, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save, Award, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import { usePorter } from '@/contexts/PorterContext';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const { isPorter, registerAsPorter } = usePorter();
+  const { porterStatus, isPorter, registerAsPorter } = usePorter();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
@@ -38,8 +38,8 @@ const Profile = () => {
   const handleRegisterPorter = () => {
     registerAsPorter();
     toast({
-      title: "Đăng ký thành công!",
-      description: "Bạn đã trở thành Porter và có thể tạo chuyến đi mới.",
+      title: "Đã gửi yêu cầu!",
+      description: "Yêu cầu đăng ký Porter của bạn đang chờ Admin duyệt.",
     });
   };
 
@@ -69,12 +69,25 @@ const Profile = () => {
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-bold">{profile.name}</h1>
-                {isPorter ? (
+                {porterStatus === 'approved' && (
                   <Badge className="bg-primary text-primary-foreground">
                     <Award className="h-3 w-3 mr-1" />
                     Porter
                   </Badge>
-                ) : (
+                )}
+                {porterStatus === 'pending' && (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Chờ duyệt Porter
+                  </Badge>
+                )}
+                {porterStatus === 'rejected' && (
+                  <Badge variant="destructive">
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Bị từ chối
+                  </Badge>
+                )}
+                {porterStatus === 'none' && (
                   <Badge variant="secondary">Thành viên</Badge>
                 )}
               </div>
@@ -218,7 +231,7 @@ const Profile = () => {
       </div>
 
       {/* Porter Registration */}
-      {!isPorter && (
+      {porterStatus === 'none' && (
         <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -234,6 +247,48 @@ const Profile = () => {
               <Button onClick={handleRegisterPorter} className="gap-2">
                 <CheckCircle className="h-4 w-4" />
                 Đăng ký Porter
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pending Status */}
+      {porterStatus === 'pending' && (
+        <Card className="border-dashed border-2 border-yellow-300 bg-yellow-50 dark:bg-yellow-900/10 dark:border-yellow-700">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                <Clock className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="font-semibold text-lg">Đang chờ duyệt</h3>
+                <p className="text-sm text-muted-foreground">
+                  Yêu cầu đăng ký Porter của bạn đang được Admin xem xét. Vui lòng chờ trong giây lát.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Rejected Status */}
+      {porterStatus === 'rejected' && (
+        <Card className="border-dashed border-2 border-destructive/30 bg-destructive/5">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-destructive/10">
+                <XCircle className="h-8 w-8 text-destructive" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="font-semibold text-lg">Yêu cầu bị từ chối</h3>
+                <p className="text-sm text-muted-foreground">
+                  Yêu cầu đăng ký Porter của bạn đã bị từ chối. Vui lòng liên hệ Admin để biết thêm chi tiết.
+                </p>
+              </div>
+              <Button onClick={handleRegisterPorter} variant="outline" className="gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Đăng ký lại
               </Button>
             </div>
           </CardContent>

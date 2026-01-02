@@ -1,29 +1,54 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export type PorterStatus = 'none' | 'pending' | 'approved' | 'rejected';
+
 interface PorterContextType {
+  porterStatus: PorterStatus;
   isPorter: boolean;
-  setIsPorter: (value: boolean) => void;
   registerAsPorter: () => void;
+  approvePorter: (userId: string) => void;
+  rejectPorter: (userId: string, reason: string) => void;
 }
 
 const PorterContext = createContext<PorterContextType | undefined>(undefined);
 
 export function PorterProvider({ children }: { children: ReactNode }) {
-  const [isPorter, setIsPorter] = useState(() => {
-    const saved = localStorage.getItem('isPorter');
-    return saved === 'true';
+  const [porterStatus, setPorterStatus] = useState<PorterStatus>(() => {
+    const saved = localStorage.getItem('porterStatus');
+    return (saved as PorterStatus) || 'none';
   });
 
   useEffect(() => {
-    localStorage.setItem('isPorter', String(isPorter));
-  }, [isPorter]);
+    localStorage.setItem('porterStatus', porterStatus);
+  }, [porterStatus]);
+
+  const isPorter = porterStatus === 'approved';
 
   const registerAsPorter = () => {
-    setIsPorter(true);
+    setPorterStatus('pending');
+  };
+
+  const approvePorter = (userId: string) => {
+    // In mock mode, we only track current user
+    if (userId === 'current-user') {
+      setPorterStatus('approved');
+    }
+  };
+
+  const rejectPorter = (userId: string, reason: string) => {
+    if (userId === 'current-user') {
+      setPorterStatus('rejected');
+    }
   };
 
   return (
-    <PorterContext.Provider value={{ isPorter, setIsPorter, registerAsPorter }}>
+    <PorterContext.Provider value={{ 
+      porterStatus, 
+      isPorter, 
+      registerAsPorter,
+      approvePorter,
+      rejectPorter
+    }}>
       {children}
     </PorterContext.Provider>
   );
