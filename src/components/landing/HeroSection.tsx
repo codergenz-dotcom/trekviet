@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MapPin, Calendar as CalendarIcon, Users, Search } from "lucide-react";
+import { MapPin, Calendar as CalendarIcon, Gauge, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -14,13 +14,13 @@ export const HeroSection = () => {
   const navigate = useNavigate();
   const [date, setDate] = useState<Date>();
   const [location, setLocation] = useState<string>("");
-  const [people, setPeople] = useState<string>("");
+  const [difficulty, setDifficulty] = useState<string>("");
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (location) params.set("location", location);
     if (date) params.set("date", format(date, "yyyy-MM-dd"));
-    if (people) params.set("people", people);
+    if (difficulty) params.set("difficulty", difficulty);
     
     navigate(`/trips${params.toString() ? `?${params.toString()}` : ""}`);
   };
@@ -107,16 +107,16 @@ export const HeroSection = () => {
               </div>
               
               <div className="flex items-center gap-2 border-r border-border pr-4">
-                <Users className="h-5 w-5 text-muted-foreground" />
-                <Select value={people} onValueChange={setPeople}>
+                <Gauge className="h-5 w-5 text-muted-foreground" />
+                <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger className="border-0 shadow-none focus:ring-0">
-                    <SelectValue placeholder="Số người" />
+                    <SelectValue placeholder="Độ khó" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1 người</SelectItem>
-                    <SelectItem value="2">2 người</SelectItem>
-                    <SelectItem value="3">3 người</SelectItem>
-                    <SelectItem value="4">4+ người</SelectItem>
+                    <SelectItem value="easy">Dễ</SelectItem>
+                    <SelectItem value="medium">Trung bình</SelectItem>
+                    <SelectItem value="hard">Khó</SelectItem>
+                    <SelectItem value="extreme">Rất khó</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
