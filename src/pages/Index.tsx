@@ -28,12 +28,13 @@ const Index = () => {
   // Apply URL search params on mount
   useEffect(() => {
     const location = searchParams.get('location');
-    if (location) {
-      setFilters(prev => ({
-        ...prev,
-        locations: [location]
-      }));
-    }
+    const difficulty = searchParams.get('difficulty');
+    
+    setFilters(prev => ({
+      ...prev,
+      locations: location ? [location] : prev.locations,
+      difficulties: difficulty ? [difficulty as Filters['difficulties'][0]] : prev.difficulties,
+    }));
   }, [searchParams]);
 
   const handleReview = (tripId: string) => {
