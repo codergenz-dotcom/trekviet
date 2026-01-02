@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Mountain, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/SearchBar';
@@ -14,6 +15,7 @@ const initialFilters: Filters = {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -95,7 +97,10 @@ const Index = () => {
                   Tìm và tham gia các chuyến leo núi phù hợp với bạn
                 </p>
               </div>
-              <Button className="gradient-sunrise text-accent-foreground shadow-button hover:opacity-90 transition-opacity font-semibold gap-2">
+              <Button 
+                onClick={() => navigate('/create-trip')}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold gap-2"
+              >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Tạo chuyến đi mới</span>
                 <span className="sm:hidden">Tạo mới</span>
