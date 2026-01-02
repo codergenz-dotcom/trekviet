@@ -10,7 +10,7 @@ export const LandingFooter = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Mountain className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">TrekViet</span>
+              <span className="text-xl font-bold">BKTreking</span>
             </div>
             <p className="text-slate-400 mb-4">
               Khám phá những cung đường trekking tuyệt vời nhất Việt Nam. Chúng tôi mang đến trải nghiệm an toàn, chuyên nghiệp và đáng nhớ.
@@ -66,7 +66,7 @@ export const LandingFooter = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary" />
-                <span className="text-slate-400">info@trekviet.com</span>
+                <span className="text-slate-400">info@bktreking.com</span>
               </li>
             </ul>
           </div>
@@ -74,7 +74,7 @@ export const LandingFooter = () => {
         
         <div className="border-t border-slate-800 pt-8 text-center">
           <p className="text-slate-500">
-            © 2024 TrekViet. Tất cả quyền được bảo lưu.
+            © 2024 BKTreking. Tất cả quyền được bảo lưu.
           </p>
         </div>
       </div>

@@ -8,7 +8,7 @@ export const LandingHeader = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Mountain className="h-8 w-8 text-white" />
-          <span className="text-xl font-bold text-white">TrekViet</span>
+          <span className="text-xl font-bold text-white">BKTreking</span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
