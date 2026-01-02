@@ -17,6 +17,7 @@ export interface Trip {
   portersNeeded: number;
   estimatedPrice: number;
   description: string;
+  organizerId: string;
 }
 
 export const mockTrips: Trip[] = [
@@ -36,6 +37,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 2,
     estimatedPrice: 2500000,
     description: 'Hành trình chinh phục đỉnh U Bò với view săn mây tuyệt đẹp',
+    organizerId: 'porter-1',
   },
   {
     id: '2',
@@ -53,6 +55,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 3,
     estimatedPrice: 3500000,
     description: 'Leo nóc nhà Đông Dương theo cung đường truyền thống',
+    organizerId: 'porter-2',
   },
   {
     id: '3',
@@ -70,6 +73,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 2,
     estimatedPrice: 2200000,
     description: 'Săn mây và check-in sống lưng khủng long nổi tiếng',
+    organizerId: 'current-user',
   },
   {
     id: '4',
@@ -87,6 +91,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 3,
     estimatedPrice: 4500000,
     description: 'Chinh phục đỉnh núi cao thứ 4 Việt Nam',
+    organizerId: 'porter-1',
   },
   {
     id: '5',
@@ -104,6 +109,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 0,
     estimatedPrice: 800000,
     description: 'Leo núi cùng gia đình, phù hợp người mới bắt đầu',
+    organizerId: 'current-user',
   },
   {
     id: '6',
@@ -121,6 +127,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 4,
     estimatedPrice: 5500000,
     description: 'Thử thách cực đại cho các trekker chuyên nghiệp',
+    organizerId: 'porter-2',
   },
   {
     id: '7',
@@ -138,6 +145,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 2,
     estimatedPrice: 2800000,
     description: 'Hành trình lên đỉnh mây với cảnh quan tuyệt mỹ',
+    organizerId: 'porter-1',
   },
   {
     id: '8',
@@ -155,6 +163,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 3,
     estimatedPrice: 4200000,
     description: 'Cắm trại và chinh phục đỉnh Ky Quan San hùng vĩ',
+    organizerId: 'current-user',
   },
 ];
 
@@ -180,6 +189,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     portersNeeded: 2,
     estimatedPrice: 3200000,
     description: 'Cung đường trekking đẹp nhất Việt Nam',
+    organizerId: 'porter-1',
     completedDate: '2025-11-17',
     hasReviewed: true,
   },
@@ -199,6 +209,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     portersNeeded: 0,
     estimatedPrice: 500000,
     description: 'Leo núi cuối tuần gần Sài Gòn',
+    organizerId: 'porter-2',
     completedDate: '2025-12-01',
     hasReviewed: false,
   },
@@ -218,6 +229,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     portersNeeded: 3,
     estimatedPrice: 3800000,
     description: 'Chinh phục đỉnh núi cao thứ 9 Việt Nam',
+    organizerId: 'current-user',
     completedDate: '2025-12-21',
     hasReviewed: false,
   },
