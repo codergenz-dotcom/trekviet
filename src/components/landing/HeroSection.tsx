@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,7 +11,19 @@ import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
   const [date, setDate] = useState<Date>();
+  const [location, setLocation] = useState<string>("");
+  const [people, setPeople] = useState<string>("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (location) params.set("location", location);
+    if (date) params.set("date", format(date, "yyyy-MM-dd"));
+    if (people) params.set("people", people);
+    
+    navigate(`/trips${params.toString() ? `?${params.toString()}` : ""}`);
+  };
 
   return (
     <section className="relative h-screen flex items-center">
@@ -54,15 +67,15 @@ export const HeroSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2 border-r border-border pr-4">
                 <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <Select>
+                <Select value={location} onValueChange={setLocation}>
                   <SelectTrigger className="border-0 shadow-none focus:ring-0 min-w-0">
                     <SelectValue placeholder="Chọn điểm đến" className="truncate" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sapa">Sapa</SelectItem>
-                    <SelectItem value="hagiang">Hà Giang</SelectItem>
-                    <SelectItem value="taybac">Tây Bắc</SelectItem>
-                    <SelectItem value="taynguyen">Tây Nguyên</SelectItem>
+                    <SelectItem value="Sapa">Sapa</SelectItem>
+                    <SelectItem value="Hà Giang">Hà Giang</SelectItem>
+                    <SelectItem value="Tây Bắc">Tây Bắc</SelectItem>
+                    <SelectItem value="Tây Nguyên">Tây Nguyên</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -95,9 +108,9 @@ export const HeroSection = () => {
               
               <div className="flex items-center gap-2 border-r border-border pr-4">
                 <Users className="h-5 w-5 text-muted-foreground" />
-                <Select>
+                <Select value={people} onValueChange={setPeople}>
                   <SelectTrigger className="border-0 shadow-none focus:ring-0">
-                    <SelectValue placeholder="1 người" />
+                    <SelectValue placeholder="Số người" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">1 người</SelectItem>
@@ -108,7 +121,7 @@ export const HeroSection = () => {
                 </Select>
               </div>
               
-              <Button className="bg-primary hover:bg-primary/90 h-full">
+              <Button onClick={handleSearch} className="bg-primary hover:bg-primary/90 h-full">
                 <Search className="h-4 w-4 mr-2" />
                 Tìm kiếm
               </Button>
