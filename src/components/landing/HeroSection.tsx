@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Calendar, Users, Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const HeroSection = () => {
   return (
@@ -16,17 +17,33 @@ export const HeroSection = () => {
       
       <div className="container mx-auto px-4 relative z-10 pt-20">
         <div className="max-w-2xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
+          >
             Khám phá những cung đường{" "}
             <span className="text-primary">trekking</span> tuyệt vời nhất{" "}
             <span className="text-primary">Việt Nam</span>
-          </h1>
-          <p className="text-lg text-white/80 mb-8">
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg text-white/80 mb-8"
+          >
             Từ những đỉnh núi hùng vĩ đến các thung lũng xanh mướt, chúng tôi mang đến cho bạn những trải nghiệm trekking an toàn và đáng nhớ.
-          </p>
+          </motion.p>
           
           {/* Search Form */}
-          <div className="bg-white rounded-xl p-4 shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="bg-white rounded-xl p-4 shadow-xl"
+          >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2 border-r border-border pr-4">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
@@ -72,10 +89,15 @@ export const HeroSection = () => {
                 Tìm kiếm
               </Button>
             </div>
-          </div>
+          </motion.div>
           
           {/* Stats */}
-          <div className="flex gap-12 mt-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex gap-12 mt-8"
+          >
             <div>
               <p className="text-3xl font-bold text-white">50+</p>
               <p className="text-white/70">Cung đường</p>
@@ -88,7 +110,7 @@ export const HeroSection = () => {
               <p className="text-3xl font-bold text-white">4.9</p>
               <p className="text-white/70">Đánh giá</p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
       

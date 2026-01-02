@@ -1,4 +1,5 @@
 import { Shield, Award, Headphones, UserCheck } from "lucide-react";
+import { motion } from "framer-motion";
 
 const features = [
   {
@@ -23,30 +24,73 @@ const features = [
   }
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.5 }
+  }
+};
+
 export const WhyChooseUs = () => {
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Tại sao chọn <span className="text-primary">TrekViet</span>?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Với hơn 10 năm kinh nghiệm, chúng tôi tự hào là đơn vị hàng đầu trong lĩnh vực trekking và du lịch mạo hiểm tại Việt Nam.
           </p>
-        </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
           {features.map((feature, index) => (
-            <div key={index} className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <motion.div 
+              key={index} 
+              variants={itemVariants}
+              whileHover={{ y: -8, transition: { duration: 0.2 } }}
+              className="text-center p-6 bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            >
+              <motion.div 
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 200, delay: index * 0.1 }}
+                className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
                 <feature.icon className="h-8 w-8 text-primary" />
-              </div>
+              </motion.div>
               <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
               <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
