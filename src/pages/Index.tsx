@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Mountain, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/SearchBar';
@@ -18,10 +18,22 @@ const initialFilters: Filters = {
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Apply URL search params on mount
+  useEffect(() => {
+    const location = searchParams.get('location');
+    if (location) {
+      setFilters(prev => ({
+        ...prev,
+        locations: [location]
+      }));
+    }
+  }, [searchParams]);
 
   const handleReview = (tripId: string) => {
     toast({
