@@ -10,8 +10,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { useNavigate } from 'react-router-dom';
 export function AppHeader() {
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-border bg-background/95 backdrop-blur-sm px-4">
       <SidebarTrigger className="h-8 w-8" />
@@ -40,9 +42,9 @@ export function AppHeader() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Hồ sơ</DropdownMenuItem>
-            <DropdownMenuItem>Chuyến đi của tôi</DropdownMenuItem>
-            <DropdownMenuItem>Cài đặt</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/profile')}>Hồ sơ</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/my-trips')}>Chuyến đi của tôi</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>Cài đặt</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">Đăng xuất</DropdownMenuItem>
           </DropdownMenuContent>

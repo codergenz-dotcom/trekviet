@@ -12,6 +12,7 @@ import CreateTrip from "./pages/CreateTrip";
 import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 import TripDetail from "./pages/TripDetail";
 import MyTrips from "./pages/MyTrips";
+import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPorters from "./pages/admin/AdminPorters";
 
@@ -41,6 +42,7 @@ const App = () => (
                   <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
                   <Route path="/trip/:id" element={<TripDetail />} />
                   <Route path="/my-trips" element={<MyTrips />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
