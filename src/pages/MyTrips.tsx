@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Mountain, SlidersHorizontal, X, Calendar, MapPin, Users, User, Compass, Backpack } from "lucide-react";
+import { Plus, Mountain, SlidersHorizontal, Calendar, MapPin, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { mockTrips, difficultyLabels, tripTypeLabels, type Trip, type Difficulty } from "@/data/mockTrips";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty } from "@/data/mockTrips";
+import { CompletedTripCard } from "@/components/CompletedTripCard";
 
 type TripStatus = "draft" | "pending" | "open" | "completed";
 
@@ -69,6 +71,7 @@ const MyTrips = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("created");
 
   const filteredTrips = useMemo(() => {
     if (!searchQuery) return myTrips;
@@ -79,6 +82,21 @@ const MyTrips = () => {
         trip.location.toLowerCase().includes(query)
     );
   }, [searchQuery]);
+
+  const filteredCompletedTrips = useMemo(() => {
+    if (!searchQuery) return mockCompletedTrips;
+    const query = searchQuery.toLowerCase();
+    return mockCompletedTrips.filter(
+      (trip) =>
+        trip.name.toLowerCase().includes(query) ||
+        trip.location.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  const handleReview = (tripId: string) => {
+    console.log("Opening review for trip:", tripId);
+    // TODO: Open review modal
+  };
 
   return (
     <div className="bg-background">
@@ -147,44 +165,72 @@ const MyTrips = () => {
 
           {/* Trip List */}
           <div className="flex-1 min-w-0">
-            {/* Results Count */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                Bạn có{" "}
-                <span className="font-semibold text-foreground">
-                  {filteredTrips.length}
-                </span>{" "}
-                chuyến đi
-              </p>
-            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="created">
+                  Chuyến đi đã tạo ({filteredTrips.length})
+                </TabsTrigger>
+                <TabsTrigger value="completed">
+                  Đã hoàn thành ({filteredCompletedTrips.length})
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Trip Cards */}
-            {filteredTrips.length > 0 ? (
-              <div className="space-y-4">
-                {filteredTrips.map((trip, index) => (
-                  <MyTripCard key={trip.id} trip={trip} index={index} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="p-4 rounded-full bg-muted mb-4">
-                  <Mountain className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Chưa có chuyến đi nào
-                </h3>
-                <p className="text-muted-foreground max-w-md">
-                  Bạn chưa tạo chuyến đi nào. Hãy tạo chuyến đi đầu tiên của bạn!
-                </p>
-                <Button
-                  className="mt-4"
-                  onClick={() => navigate("/create-trip")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Tạo chuyến đi mới
-                </Button>
-              </div>
-            )}
+              <TabsContent value="created" className="mt-0">
+                {filteredTrips.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredTrips.map((trip, index) => (
+                      <MyTripCard key={trip.id} trip={trip} index={index} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="p-4 rounded-full bg-muted mb-4">
+                      <Mountain className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Chưa có chuyến đi nào
+                    </h3>
+                    <p className="text-muted-foreground max-w-md">
+                      Bạn chưa tạo chuyến đi nào. Hãy tạo chuyến đi đầu tiên của bạn!
+                    </p>
+                    <Button
+                      className="mt-4"
+                      onClick={() => navigate("/create-trip")}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Tạo chuyến đi mới
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="completed" className="mt-0">
+                {filteredCompletedTrips.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredCompletedTrips.map((trip, index) => (
+                      <CompletedTripCard 
+                        key={trip.id} 
+                        trip={trip} 
+                        index={index} 
+                        onReview={handleReview}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="p-4 rounded-full bg-muted mb-4">
+                      <Mountain className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Chưa có chuyến đi hoàn thành
+                    </h3>
+                    <p className="text-muted-foreground max-w-md">
+                      Bạn chưa hoàn thành chuyến đi nào.
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
