@@ -1,4 +1,4 @@
-import { Mountain, Home, Calendar, Users, Settings, MapPin, HelpCircle } from 'lucide-react';
+import { Mountain, Home, Calendar, Users, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
   Sidebar,
@@ -16,7 +16,8 @@ import {
 
 const mainNavItems = [
   { title: 'Trang chủ', url: '/', icon: Home },
-  { title: 'Chuyến đi', url: '/trips', icon: Mountain },
+  { title: 'Chuyến đi của tôi', url: '/my-trips', icon: Compass },
+  { title: 'Khám phá', url: '/trips', icon: Mountain },
   { title: 'Lịch trình', url: '/calendar', icon: Calendar },
   { title: 'Địa điểm', url: '/locations', icon: MapPin },
 ];
