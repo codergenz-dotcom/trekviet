@@ -8,7 +8,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <SidebarProvider defaultOpen={true} open={true}>
+    <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <SidebarInset className="flex-1">
