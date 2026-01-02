@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save, Award, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { usePorter } from '@/contexts/PorterContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
+  const { isPorter, registerAsPorter } = usePorter();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: 'Nguyễn Văn A',
@@ -29,6 +33,14 @@ const Profile = () => {
   const handleSave = () => {
     setIsEditing(false);
     // TODO: Save profile to backend
+  };
+
+  const handleRegisterPorter = () => {
+    registerAsPorter();
+    toast({
+      title: "Đăng ký thành công!",
+      description: "Bạn đã trở thành Porter và có thể tạo chuyến đi mới.",
+    });
   };
 
   return (
@@ -57,7 +69,14 @@ const Profile = () => {
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-bold">{profile.name}</h1>
-                <Badge variant="secondary">Thành viên</Badge>
+                {isPorter ? (
+                  <Badge className="bg-primary text-primary-foreground">
+                    <Award className="h-3 w-3 mr-1" />
+                    Porter
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">Thành viên</Badge>
+                )}
               </div>
               <p className="text-muted-foreground flex items-center gap-1 mt-1">
                 <MapPin className="h-4 w-4" />
@@ -197,6 +216,29 @@ const Profile = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Porter Registration */}
+      {!isPorter && (
+        <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Award className="h-8 w-8 text-primary" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="font-semibold text-lg">Trở thành Porter</h3>
+                <p className="text-sm text-muted-foreground">
+                  Đăng ký làm Porter để có thể tạo và tổ chức các chuyến đi leo núi của riêng bạn.
+                </p>
+              </div>
+              <Button onClick={handleRegisterPorter} className="gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Đăng ký Porter
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

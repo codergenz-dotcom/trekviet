@@ -9,6 +9,7 @@ import { CompletedTripCard } from '@/components/CompletedTripCard';
 import { mockTrips, mockCompletedTrips, type Trip } from '@/data/mockTrips';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
+import { usePorter } from '@/contexts/PorterContext';
 
 const initialFilters: Filters = {
   locations: [],
@@ -21,6 +22,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { isPorter } = usePorter();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -117,14 +119,16 @@ const Index = () => {
                   Tìm và tham gia các chuyến leo núi phù hợp với bạn
                 </p>
               </div>
-              <Button 
-                onClick={() => navigate('/create-trip')}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Tạo chuyến đi mới</span>
-                <span className="sm:hidden">Tạo mới</span>
-              </Button>
+              {isPorter && (
+                <Button 
+                  onClick={() => navigate('/create-trip')}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tạo chuyến đi mới</span>
+                  <span className="sm:hidden">Tạo mới</span>
+                </Button>
+              )}
             </div>
 
             {/* Search Row */}
