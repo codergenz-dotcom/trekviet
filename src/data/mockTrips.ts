@@ -1,0 +1,175 @@
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'extreme';
+export type TripType = 'trekking' | 'hiking' | 'alpine' | 'camping';
+
+export interface Trip {
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+  difficulty: Difficulty;
+  departureDate: string;
+  duration: string;
+  tripType: TripType;
+  spotsRemaining: number;
+  totalSpots: number;
+  leaders: number;
+  portersAvailable: number;
+  portersNeeded: number;
+  estimatedPrice: number;
+  description: string;
+}
+
+export const mockTrips: Trip[] = [
+  {
+    id: '1',
+    name: 'Samu – U Bò 2N1Đ',
+    location: 'Lào Cai',
+    image: '',
+    difficulty: 'medium',
+    departureDate: '2026-01-15',
+    duration: '2 ngày 1 đêm',
+    tripType: 'trekking',
+    spotsRemaining: 7,
+    totalSpots: 15,
+    leaders: 1,
+    portersAvailable: 1,
+    portersNeeded: 2,
+    estimatedPrice: 2500000,
+    description: 'Hành trình chinh phục đỉnh U Bò với view săn mây tuyệt đẹp',
+  },
+  {
+    id: '2',
+    name: 'Fansipan Express 2N1Đ',
+    location: 'Lào Cai',
+    image: '',
+    difficulty: 'hard',
+    departureDate: '2026-01-18',
+    duration: '2 ngày 1 đêm',
+    tripType: 'alpine',
+    spotsRemaining: 3,
+    totalSpots: 12,
+    leaders: 2,
+    portersAvailable: 2,
+    portersNeeded: 3,
+    estimatedPrice: 3500000,
+    description: 'Leo nóc nhà Đông Dương theo cung đường truyền thống',
+  },
+  {
+    id: '3',
+    name: 'Tà Xùa – Sống Khủng Long',
+    location: 'Sơn La',
+    image: '',
+    difficulty: 'medium',
+    departureDate: '2026-01-20',
+    duration: '2 ngày 1 đêm',
+    tripType: 'trekking',
+    spotsRemaining: 10,
+    totalSpots: 20,
+    leaders: 1,
+    portersAvailable: 0,
+    portersNeeded: 2,
+    estimatedPrice: 2200000,
+    description: 'Săn mây và check-in sống lưng khủng long nổi tiếng',
+  },
+  {
+    id: '4',
+    name: 'Bạch Mộc Lương Tử 3N2Đ',
+    location: 'Lai Châu',
+    image: '',
+    difficulty: 'hard',
+    departureDate: '2026-01-22',
+    duration: '3 ngày 2 đêm',
+    tripType: 'alpine',
+    spotsRemaining: 5,
+    totalSpots: 10,
+    leaders: 2,
+    portersAvailable: 3,
+    portersNeeded: 3,
+    estimatedPrice: 4500000,
+    description: 'Chinh phục đỉnh núi cao thứ 4 Việt Nam',
+  },
+  {
+    id: '5',
+    name: 'Núi Bà Đen 1 ngày',
+    location: 'Tây Ninh',
+    image: '',
+    difficulty: 'easy',
+    departureDate: '2026-01-12',
+    duration: '1 ngày',
+    tripType: 'hiking',
+    spotsRemaining: 15,
+    totalSpots: 25,
+    leaders: 1,
+    portersAvailable: 0,
+    portersNeeded: 0,
+    estimatedPrice: 800000,
+    description: 'Leo núi cùng gia đình, phù hợp người mới bắt đầu',
+  },
+  {
+    id: '6',
+    name: 'Putaleng – Nóc nhà Lai Châu',
+    location: 'Lai Châu',
+    image: '',
+    difficulty: 'extreme',
+    departureDate: '2026-02-01',
+    duration: '3 ngày 2 đêm',
+    tripType: 'alpine',
+    spotsRemaining: 2,
+    totalSpots: 8,
+    leaders: 2,
+    portersAvailable: 2,
+    portersNeeded: 4,
+    estimatedPrice: 5500000,
+    description: 'Thử thách cực đại cho các trekker chuyên nghiệp',
+  },
+  {
+    id: '7',
+    name: 'Lảo Thẩn – Đỉnh Mây',
+    location: 'Lào Cai',
+    image: '',
+    difficulty: 'medium',
+    departureDate: '2026-01-25',
+    duration: '2 ngày 1 đêm',
+    tripType: 'trekking',
+    spotsRemaining: 8,
+    totalSpots: 15,
+    leaders: 1,
+    portersAvailable: 1,
+    portersNeeded: 2,
+    estimatedPrice: 2800000,
+    description: 'Hành trình lên đỉnh mây với cảnh quan tuyệt mỹ',
+  },
+  {
+    id: '8',
+    name: 'Ky Quan San Camping',
+    location: 'Lào Cai',
+    image: '',
+    difficulty: 'hard',
+    departureDate: '2026-02-05',
+    duration: '3 ngày 2 đêm',
+    tripType: 'camping',
+    spotsRemaining: 6,
+    totalSpots: 12,
+    leaders: 2,
+    portersAvailable: 2,
+    portersNeeded: 3,
+    estimatedPrice: 4200000,
+    description: 'Cắm trại và chinh phục đỉnh Ky Quan San hùng vĩ',
+  },
+];
+
+export const locations = ['Lào Cai', 'Sơn La', 'Lai Châu', 'Tây Ninh', 'Hà Giang', 'Yên Bái'];
+
+export const difficultyLabels: Record<Difficulty, string> = {
+  easy: 'Dễ',
+  medium: 'Trung bình',
+  hard: 'Khó',
+  extreme: 'Rất khó',
+};
+
+export const tripTypeLabels: Record<TripType, string> = {
+  trekking: 'Trekking',
+  hiking: 'Hiking',
+  alpine: 'Alpine',
+  camping: 'Camping',
+};
