@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle, Check, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +10,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { mockTrips, difficultyLabels, tripTypeLabels, type Trip } from "@/data/mockTrips";
+
+type RegistrationStatus = "pending" | "approved" | "rejected";
+
+interface Registration {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: RegistrationStatus;
+  registeredAt: string;
+}
+
+// Mock registration data
+const mockRegistrations: Registration[] = [
+  { id: "1", name: "Nguyễn Văn A", email: "nguyenvana@gmail.com", phone: "0901234567", status: "pending", registeredAt: "2026-01-05" },
+  { id: "2", name: "Trần Thị B", email: "tranthib@gmail.com", phone: "0912345678", status: "pending", registeredAt: "2026-01-06" },
+  { id: "3", name: "Lê Văn C", email: "levanc@gmail.com", phone: "0923456789", status: "approved", registeredAt: "2026-01-04" },
+  { id: "4", name: "Phạm Thị D", email: "phamthid@gmail.com", phone: "0934567890", status: "approved", registeredAt: "2026-01-03" },
+  { id: "5", name: "Hoàng Văn E", email: "hoangvane@gmail.com", phone: "0945678901", status: "rejected", registeredAt: "2026-01-02" },
+];
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -48,8 +69,12 @@ const TripDetail = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [registrations, setRegistrations] = useState<Registration[]>(mockRegistrations);
 
   const trip = mockTrips.find((t) => t.id === id);
+
+  // Check if current user is the trip organizer (mock - would be based on auth)
+  const isOrganizer = true;
 
   if (!trip) {
     return (
@@ -65,6 +90,22 @@ const TripDetail = () => {
   const handleJoin = () => {
     setShowSuccessModal(true);
   };
+
+  const handleApprove = (registrationId: string) => {
+    setRegistrations((prev) =>
+      prev.map((r) => (r.id === registrationId ? { ...r, status: "approved" as RegistrationStatus } : r))
+    );
+  };
+
+  const handleReject = (registrationId: string) => {
+    setRegistrations((prev) =>
+      prev.map((r) => (r.id === registrationId ? { ...r, status: "rejected" as RegistrationStatus } : r))
+    );
+  };
+
+  const pendingRegistrations = registrations.filter((r) => r.status === "pending");
+  const approvedRegistrations = registrations.filter((r) => r.status === "approved");
+  const rejectedRegistrations = registrations.filter((r) => r.status === "rejected");
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
@@ -86,32 +127,46 @@ const TripDetail = () => {
 
         <div className="border border-border rounded-xl bg-card overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-border px-6 pt-4">
-              <TabsList className="w-full grid grid-cols-4 bg-transparent h-auto p-0 gap-0">
+            <div className="border-b border-border px-6 pt-4 overflow-x-auto">
+              <TabsList className={`w-full grid ${isOrganizer ? "grid-cols-5" : "grid-cols-4"} bg-transparent h-auto p-0 gap-0 min-w-max`}>
                 <TabsTrigger
                   value="basic-info"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
                 >
                   Thông tin cơ bản
                 </TabsTrigger>
                 <TabsTrigger
                   value="schedule"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
                 >
                   Lịch trình
                 </TabsTrigger>
                 <TabsTrigger
                   value="services"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
                 >
                   Dịch vụ
                 </TabsTrigger>
                 <TabsTrigger
                   value="preparation"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
                 >
                   Lưu ý chuẩn bị
                 </TabsTrigger>
+                {isOrganizer && (
+                  <TabsTrigger
+                    value="members"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
+                  >
+                    <Users className="h-4 w-4 mr-1" />
+                    Thành viên
+                    {pendingRegistrations.length > 0 && (
+                      <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                        {pendingRegistrations.length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                )}
               </TabsList>
             </div>
 
@@ -291,6 +346,137 @@ const TripDetail = () => {
                   </ul>
                 </div>
               </TabsContent>
+
+              {isOrganizer && (
+                <TabsContent value="members" className="mt-0">
+                  <div className="space-y-6">
+                    {/* Pending registrations */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                        Đơn đăng ký chờ duyệt
+                        {pendingRegistrations.length > 0 && (
+                          <Badge variant="secondary">{pendingRegistrations.length}</Badge>
+                        )}
+                      </h3>
+                      {pendingRegistrations.length > 0 ? (
+                        <div className="space-y-3">
+                          {pendingRegistrations.map((reg, index) => (
+                            <div
+                              key={reg.id}
+                              className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/30"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground w-6">{index + 1}.</span>
+                                <Avatar className="h-10 w-10">
+                                  <AvatarFallback className="bg-primary/10 text-primary">
+                                    {reg.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium text-foreground">{reg.name}</p>
+                                  <p className="text-sm text-muted-foreground">{reg.phone}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleApprove(reg.id)}
+                                  className="gap-1"
+                                >
+                                  <Check className="h-4 w-4" />
+                                  Duyệt
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleReject(reg.id)}
+                                  className="gap-1"
+                                >
+                                  <X className="h-4 w-4" />
+                                  Từ chối
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">Không có đơn đăng ký nào đang chờ duyệt.</p>
+                      )}
+                    </div>
+
+                    {/* Approved members */}
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                        Danh sách thành viên
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          {approvedRegistrations.length}
+                        </Badge>
+                      </h3>
+                      {approvedRegistrations.length > 0 ? (
+                        <div className="space-y-2">
+                          {approvedRegistrations.map((reg, index) => (
+                            <div
+                              key={reg.id}
+                              className="flex items-center justify-between p-3 border border-border rounded-lg"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground w-6">{index + 1}.</span>
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback className="bg-green-100 text-green-800 text-sm">
+                                    {reg.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium text-foreground">{reg.name}</p>
+                                  <p className="text-xs text-muted-foreground">{reg.email} • {reg.phone}</p>
+                                </div>
+                              </div>
+                              <Badge className="bg-green-100 text-green-800 border-0">
+                                Đã duyệt
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">Chưa có thành viên nào.</p>
+                      )}
+                    </div>
+
+                    {/* Rejected registrations */}
+                    {rejectedRegistrations.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                          Đã từ chối
+                          <Badge variant="secondary" className="bg-red-100 text-red-800">
+                            {rejectedRegistrations.length}
+                          </Badge>
+                        </h3>
+                        <div className="space-y-2">
+                          {rejectedRegistrations.map((reg, index) => (
+                            <div
+                              key={reg.id}
+                              className="flex items-center justify-between p-3 border border-border rounded-lg opacity-60"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground w-6">{index + 1}.</span>
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback className="bg-red-100 text-red-800 text-sm">
+                                    {reg.name.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <p className="font-medium text-foreground">{reg.name}</p>
+                              </div>
+                              <Badge variant="outline" className="text-red-600 border-red-200">
+                                Từ chối
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              )}
             </div>
           </Tabs>
         </div>
