@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/SearchBar';
 import { FilterSidebar, type Filters } from '@/components/FilterSidebar';
 import { TripCard } from '@/components/TripCard';
-import { mockTrips, type Trip } from '@/data/mockTrips';
+import { CompletedTripCard } from '@/components/CompletedTripCard';
+import { mockTrips, mockCompletedTrips, type Trip } from '@/data/mockTrips';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useToast } from '@/hooks/use-toast';
 
 const initialFilters: Filters = {
   locations: [],
@@ -16,9 +18,17 @@ const initialFilters: Filters = {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  const handleReview = (tripId: string) => {
+    toast({
+      title: "Đánh giá chuyến đi",
+      description: "Chức năng đánh giá sẽ được cập nhật sớm!",
+    });
+  };
 
   const filteredTrips = useMemo(() => {
     let result = [...mockTrips];
@@ -207,6 +217,25 @@ const Index = () => {
                 >
                   Xóa tất cả bộ lọc
                 </Button>
+              </div>
+            )}
+
+            {/* Completed Trips Section */}
+            {mockCompletedTrips.length > 0 && (
+              <div className="mt-10 pt-8 border-t border-border">
+                <h2 className="text-lg font-bold text-foreground mb-4">
+                  Chuyến đi đã hoàn thành ({mockCompletedTrips.length})
+                </h2>
+                <div className="space-y-4">
+                  {mockCompletedTrips.map((trip, index) => (
+                    <CompletedTripCard 
+                      key={trip.id} 
+                      trip={trip} 
+                      index={index} 
+                      onReview={handleReview}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
