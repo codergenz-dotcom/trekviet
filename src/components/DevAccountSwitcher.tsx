@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { User, Shield, Mountain } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const roleIcons = {
   user: User,
@@ -29,19 +30,26 @@ const roleColors = {
 
 export function DevAccountSwitcher() {
   const { currentUser, switchAccount, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAccountChange = (value: string) => {
+    if (value === 'none') {
+      logout();
+    } else {
+      switchAccount(value);
+      const selectedUser = mockUsers.find(u => u.id === value);
+      if (selectedUser?.role === 'admin') {
+        navigate('/admin');
+      }
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-50 bg-background border rounded-lg shadow-lg p-3 space-y-2">
       <div className="text-xs font-medium text-muted-foreground">🔧 Dev Account Switcher</div>
       <Select
         value={currentUser?.id || 'none'}
-        onValueChange={(value) => {
-          if (value === 'none') {
-            logout();
-          } else {
-            switchAccount(value);
-          }
-        }}
+        onValueChange={handleAccountChange}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Chọn account" />
