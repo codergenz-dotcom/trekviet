@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import CreateTrip from "./pages/CreateTrip";
+import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/create-trip" element={<CreateTrip />} />
+                  <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
