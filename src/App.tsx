@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import CreateTrip from "./pages/CreateTrip";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
               <AppLayout>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/create-trip" element={<CreateTrip />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
