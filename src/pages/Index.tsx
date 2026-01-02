@@ -29,11 +29,13 @@ const Index = () => {
   useEffect(() => {
     const location = searchParams.get('location');
     const difficulty = searchParams.get('difficulty');
+    const date = searchParams.get('date');
     
     setFilters(prev => ({
       ...prev,
       locations: location ? [location] : prev.locations,
       difficulties: difficulty ? [difficulty as Filters['difficulties'][0]] : prev.difficulties,
+      dateFrom: date || prev.dateFrom,
     }));
   }, [searchParams]);
 
