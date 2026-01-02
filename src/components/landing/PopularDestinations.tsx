@@ -85,7 +85,7 @@ export const PopularDestinations = () => {
                   alt={destination.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/90 transition-all duration-300" />
                 <motion.div 
                   initial={{ y: 10, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
@@ -94,7 +94,8 @@ export const PopularDestinations = () => {
                   className="absolute bottom-6 left-6 text-white"
                 >
                   <h3 className="text-2xl font-bold mb-1">{destination.name}</h3>
-                  <p className="text-sm text-white/80">{destination.routes}</p>
+                  <p className="text-sm text-white/80 group-hover:hidden">{destination.routes}</p>
+                  <p className="text-sm text-primary font-semibold hidden group-hover:block">Khám phá ngay →</p>
                 </motion.div>
               </Link>
             </motion.div>
