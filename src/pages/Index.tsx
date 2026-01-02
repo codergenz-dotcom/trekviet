@@ -80,25 +80,20 @@ const Index = () => {
     (filters.duration ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/60">
+    <div className="bg-background">
+      {/* Page Header */}
+      <div className="border-b border-border/60 bg-background/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col gap-4">
             {/* Top Row */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl gradient-mountain">
-                  <Mountain className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-foreground">
-                    Danh sách chuyến đi hiện tại
-                  </h1>
-                  <p className="text-sm text-muted-foreground hidden sm:block">
-                    Tìm và tham gia các chuyến leo núi phù hợp với bạn
-                  </p>
-                </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                  Danh sách chuyến đi hiện tại
+                </h1>
+                <p className="text-sm text-muted-foreground hidden sm:block">
+                  Tìm và tham gia các chuyến leo núi phù hợp với bạn
+                </p>
               </div>
               <Button className="gradient-sunrise text-accent-foreground shadow-button hover:opacity-90 transition-opacity font-semibold gap-2">
                 <Plus className="h-4 w-4" />
@@ -140,7 +135,7 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
