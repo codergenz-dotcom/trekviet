@@ -1,5 +1,6 @@
 import { Mountain, Home, Calendar, Users, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
+import { cn } from '@/lib/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -38,14 +39,17 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-2 py-3">
+        <div className={cn(
+          "flex items-center gap-3 py-3",
+          isCollapsed ? "justify-center px-0" : "px-2"
+        )}>
           <div className="p-2 rounded-xl gradient-mountain shrink-0">
             <Mountain className="h-5 w-5 text-primary-foreground" />
           </div>
           {!isCollapsed && (
-            <div className="flex flex-col">
-              <span className="font-bold text-sidebar-foreground">TrekViet</span>
-              <span className="text-xs text-sidebar-foreground/60">Cộng đồng leo núi</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-sidebar-foreground truncate">TrekViet</span>
+              <span className="text-xs text-sidebar-foreground/60 truncate">Cộng đồng leo núi</span>
             </div>
           )}
         </div>
