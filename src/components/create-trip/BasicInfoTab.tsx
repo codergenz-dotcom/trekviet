@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Plus, X, ImagePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,32 @@ const difficulties = [
 ];
 
 export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        updateFormData({ images: [...formData.images, base64] });
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    updateFormData({ images: newImages });
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Left side - Form fields */}
@@ -190,7 +217,46 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
       {/* Right side - Image upload */}
       <div className="space-y-3">
         <Label>Thêm ảnh</Label>
-        <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        
+        {/* Image preview grid */}
+        {formData.images.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {formData.images.map((img, index) => (
+              <div key={index} className="relative group aspect-video">
+                <img
+                  src={img}
+                  alt={`Upload ${index + 1}`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                {index === 0 && (
+                  <span className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
+                    Ảnh bìa
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center min-h-[200px] bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+        >
           <ImagePlus className="h-12 w-12 text-muted-foreground mb-3" />
           <p className="text-sm text-muted-foreground text-center">
             Kéo thả hoặc click để tải ảnh lên

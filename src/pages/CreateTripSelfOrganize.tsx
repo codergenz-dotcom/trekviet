@@ -6,6 +6,8 @@ import { BasicInfoTab } from "@/components/create-trip/BasicInfoTab";
 import { ScheduleTab } from "@/components/create-trip/ScheduleTab";
 import { CostTab } from "@/components/create-trip/CostTab";
 import { PreparationTab } from "@/components/create-trip/PreparationTab";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface TripFormData {
   // Basic info
@@ -54,17 +56,51 @@ const initialFormData: TripFormData = {
 
 const CreateTripSelfOrganize = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState("basic-info");
   const [formData, setFormData] = useState<TripFormData>(initialFormData);
 
   const handleSaveDraft = () => {
-    console.log("Saving draft:", formData);
-    // TODO: Save to database
+    const drafts = JSON.parse(localStorage.getItem("tripDrafts") || "[]");
+    const newDraft = {
+      id: `draft-${Date.now()}`,
+      ...formData,
+      status: "draft",
+      createdBy: currentUser?.id,
+      createdAt: new Date().toISOString(),
+    };
+    drafts.push(newDraft);
+    localStorage.setItem("tripDrafts", JSON.stringify(drafts));
+    toast.success("Đã lưu nháp thành công!");
   };
 
   const handleSubmit = () => {
-    console.log("Submitting for review:", formData);
-    // TODO: Submit for review
+    // Validate required fields
+    if (!formData.name || !formData.location || !formData.difficulty) {
+      toast.error("Vui lòng điền đầy đủ thông tin cơ bản");
+      setActiveTab("basic-info");
+      return;
+    }
+
+    const trips = JSON.parse(localStorage.getItem("createdTrips") || "[]");
+    const newTrip = {
+      id: `trip-${Date.now()}`,
+      ...formData,
+      status: "pending", // Chờ duyệt
+      createdBy: currentUser?.id,
+      createdByName: currentUser?.name,
+      createdAt: new Date().toISOString(),
+      // Map to trip card format
+      image: formData.images[0] || "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b",
+      date: formData.departureDate?.toISOString() || new Date().toISOString(),
+      participants: 0,
+      maxParticipants: 20,
+    };
+    trips.push(newTrip);
+    localStorage.setItem("createdTrips", JSON.stringify(trips));
+    
+    toast.success("Đã gửi chuyến đi để duyệt!");
+    navigate("/trips");
   };
 
   const updateFormData = (updates: Partial<TripFormData>) => {
