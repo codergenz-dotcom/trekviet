@@ -10,7 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 import { mockTrips, difficultyLabels, tripTypeLabels, type Trip } from "@/data/mockTrips";
 
 type RegistrationStatus = "pending" | "approved" | "rejected";
@@ -69,7 +80,9 @@ const TripDetail = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [registrations, setRegistrations] = useState<Registration[]>(mockRegistrations);
+  const { toast } = useToast();
 
   const trip = mockTrips.find((t) => t.id === id);
 
@@ -272,13 +285,22 @@ const TripDetail = () => {
                     </div>
 
                     {isOrganizer ? (
-                      <Button
-                        onClick={() => navigate(`/create-trip/self-organize?edit=${id}`)}
-                        variant="outline"
-                        className="w-full h-12 text-base font-semibold"
-                      >
-                        Chỉnh sửa chuyến đi
-                      </Button>
+                      <div className="space-y-2">
+                        <Button
+                          onClick={() => navigate(`/create-trip/self-organize?edit=${id}`)}
+                          variant="outline"
+                          className="w-full h-12 text-base font-semibold"
+                        >
+                          Chỉnh sửa chuyến đi
+                        </Button>
+                        <Button
+                          onClick={() => setShowCancelDialog(true)}
+                          variant="destructive"
+                          className="w-full h-12 text-base font-semibold"
+                        >
+                          Hủy chuyến đi
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         onClick={handleJoin}
@@ -514,6 +536,33 @@ const TripDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận hủy chuyến đi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn hủy chuyến đi này không? Hành động này không thể hoàn tác và tất cả thành viên đã đăng ký sẽ được thông báo.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                toast({
+                  title: "Đã hủy chuyến đi",
+                  description: "Chuyến đi đã được hủy thành công.",
+                });
+                navigate("/my-trips");
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Xác nhận hủy
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
