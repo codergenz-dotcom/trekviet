@@ -18,9 +18,6 @@ export const LandingHeader = () => {
           <Link to="/trips" className="text-white/90 hover:text-white transition-colors">
             Trekking
           </Link>
-          <Link to="#destinations" className="text-white/90 hover:text-white transition-colors">
-            Điểm đến
-          </Link>
           <Link to="#about" className="text-white/90 hover:text-white transition-colors">
             Về chúng tôi
           </Link>
