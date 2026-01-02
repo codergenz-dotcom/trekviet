@@ -1,6 +1,7 @@
-import { Mountain, Home, Calendar, Users, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
+import { Mountain, Calendar, Users, Settings, MapPin, HelpCircle, Compass } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +17,6 @@ import {
 } from '@/components/ui/sidebar';
 
 const mainNavItems = [
-  { title: 'Trang chủ', url: '/', icon: Home },
   { title: 'Chuyến đi của tôi', url: '/my-trips', icon: Compass },
   { title: 'Khám phá', url: '/trips', icon: Mountain },
   { title: 'Lịch trình', url: '/calendar', icon: Calendar },
@@ -39,10 +39,13 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className={cn(
-          "flex items-center gap-3 py-3",
-          isCollapsed ? "justify-center px-0" : "px-2"
-        )}>
+        <Link 
+          to="/" 
+          className={cn(
+            "flex items-center gap-3 py-3 hover:opacity-80 transition-opacity",
+            isCollapsed ? "justify-center px-0" : "px-2"
+          )}
+        >
           <div className="p-2 rounded-xl gradient-mountain shrink-0">
             <Mountain className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -52,7 +55,7 @@ export function AppSidebar() {
               <span className="text-xs text-sidebar-foreground/60 truncate">Cộng đồng leo núi</span>
             </div>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
