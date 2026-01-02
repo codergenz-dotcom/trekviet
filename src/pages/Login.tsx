@@ -1,22 +1,6 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement login logic
-    console.log("Login:", { email, password, rememberMe });
-  };
-
   const handleGoogleLogin = () => {
     // TODO: Implement Google login
     console.log("Google login");
@@ -104,7 +88,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="text-center lg:text-left">
+          <div className="text-center">
             <h2 className="text-3xl font-bold text-foreground">Đăng nhập</h2>
             <p className="mt-2 text-muted-foreground">
               Chào mừng bạn trở lại! Vui lòng đăng nhập để tiếp tục.
@@ -115,7 +99,7 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-14 text-base font-medium"
             onClick={handleGoogleLogin}
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -139,94 +123,15 @@ const Login = () => {
             Đăng nhập với Google
           </Button>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-background text-muted-foreground">
-                hoặc đăng nhập với email
-              </span>
-            </div>
-          </div>
-
-          {/* Login form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-12"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mật khẩu</Label>
-                <a
-                  href="#"
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
-                >
-                  Quên mật khẩu?
-                </a>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 pr-12"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label
-                htmlFor="remember"
-                className="text-sm font-normal text-muted-foreground cursor-pointer"
-              >
-                Ghi nhớ đăng nhập
-              </Label>
-            </div>
-
-            <Button type="submit" className="w-full h-12 text-base font-medium">
-              Đăng nhập
-            </Button>
-          </form>
-
-          {/* Sign up link */}
-          <p className="text-center text-muted-foreground">
-            Chưa có tài khoản?{" "}
-            <a
-              href="#"
-              className="text-primary font-medium hover:text-primary/80 transition-colors"
-            >
-              Đăng ký ngay
+          {/* Terms */}
+          <p className="text-center text-sm text-muted-foreground">
+            Bằng việc đăng nhập, bạn đồng ý với{" "}
+            <a href="#" className="text-primary hover:underline">
+              Điều khoản sử dụng
+            </a>{" "}
+            và{" "}
+            <a href="#" className="text-primary hover:underline">
+              Chính sách bảo mật
             </a>
           </p>
         </div>
