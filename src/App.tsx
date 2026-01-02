@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { PorterProvider } from "@/contexts/PorterContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DevAccountSwitcher } from "@/components/DevAccountSwitcher";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
@@ -33,9 +34,23 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               {/* Landing page */}
               <Route path="/" element={<LandingPage />} />
-              {/* Admin routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/porters" element={<AdminPorters />} />
+              {/* Admin routes - protected */}
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/porters" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPorters />
+                  </ProtectedRoute>
+                } 
+              />
               {/* Main app routes */}
               <Route
                 path="/*"
@@ -44,7 +59,7 @@ const App = () => (
                     <Routes>
                       <Route path="/trips" element={<Index />} />
                       <Route path="/create-trip" element={<CreateTrip />} />
-                      <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
+                      <Route path="/create-trip/self-organize" element={<CreateTrip />} />
                       <Route path="/trip/:id" element={<TripDetail />} />
                       <Route path="/my-trips" element={<MyTrips />} />
                       <Route path="/profile" element={<Profile />} />
