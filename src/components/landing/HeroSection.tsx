@@ -1,10 +1,17 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Calendar, Users, Search } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MapPin, Calendar as CalendarIcon, Users, Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export const HeroSection = () => {
+  const [date, setDate] = useState<Date>();
+
   return (
     <section className="relative h-screen flex items-center">
       {/* Background Image */}
@@ -46,10 +53,10 @@ export const HeroSection = () => {
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2 border-r border-border pr-4">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
+                <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <Select>
-                  <SelectTrigger className="border-0 shadow-none focus:ring-0">
-                    <SelectValue placeholder="Chọn điểm đến" />
+                  <SelectTrigger className="border-0 shadow-none focus:ring-0 min-w-0">
+                    <SelectValue placeholder="Chọn điểm đến" className="truncate" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sapa">Sapa</SelectItem>
@@ -61,12 +68,29 @@ export const HeroSection = () => {
               </div>
               
               <div className="flex items-center gap-2 border-r border-border pr-4">
-                <Calendar className="h-5 w-5 text-muted-foreground" />
-                <Input 
-                  type="date" 
-                  className="border-0 shadow-none focus-visible:ring-0"
-                  placeholder="Ngày đi"
-                />
+                <CalendarIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "justify-start text-left font-normal border-0 shadow-none hover:bg-transparent px-2",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      {date ? format(date, "dd/MM/yyyy", { locale: vi }) : "Chọn ngày"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               
               <div className="flex items-center gap-2 border-r border-border pr-4">
