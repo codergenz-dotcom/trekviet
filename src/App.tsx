@@ -11,6 +11,8 @@ import CreateTrip from "./pages/CreateTrip";
 import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 import TripDetail from "./pages/TripDetail";
 import MyTrips from "./pages/MyTrips";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPorters from "./pages/admin/AdminPorters";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/porters" element={<AdminPorters />} />
+          {/* Main app routes */}
           <Route
             path="/*"
             element={
