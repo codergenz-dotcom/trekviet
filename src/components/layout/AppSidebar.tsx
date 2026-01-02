@@ -51,7 +51,7 @@ export function AppSidebar() {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-sidebar-foreground truncate">BKTreking</span>
+              <span className="font-bold text-sidebar-foreground truncate">VietTrekking</span>
               <span className="text-xs text-sidebar-foreground/60 truncate">Cộng đồng leo núi</span>
             </div>
           )}
