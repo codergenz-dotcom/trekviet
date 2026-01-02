@@ -26,7 +26,7 @@ export const AdminSidebar = () => {
           <div className="p-1.5 rounded-lg bg-primary">
             <Mountain className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg text-foreground">TrekViet</span>
+          <span className="font-bold text-lg text-foreground">BKTreking</span>
           <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
             Admin
           </span>

@@ -46,7 +46,7 @@ const Login = () => {
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-4 text-center">TrekViet</h1>
+          <h1 className="text-4xl font-bold mb-4 text-center">BKTreking</h1>
           <p className="text-xl text-white/80 text-center max-w-md">
             Khám phá những đỉnh núi tuyệt đẹp cùng cộng đồng trekking Việt Nam
           </p>
@@ -84,7 +84,7 @@ const Login = () => {
                   <path d="M8 3l4 8 5-5 5 15H2L8 3z" />
                 </svg>
               </div>
-              <span className="text-2xl font-bold text-foreground">TrekViet</span>
+              <span className="text-2xl font-bold text-foreground">BKTreking</span>
             </div>
           </div>
 

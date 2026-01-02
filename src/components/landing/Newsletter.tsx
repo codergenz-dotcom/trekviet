@@ -31,7 +31,7 @@ export const Newsletter = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-muted-foreground mb-8"
           >
-            Đăng ký nhận thông tin về các tour mới, ưu đãi đặc biệt, và mẹo trekking hữu ích từ TrekViet.
+            Đăng ký nhận thông tin về các tour mới, ưu đãi đặc biệt, và mẹo trekking hữu ích từ BKTreking.
           </motion.p>
           
           <motion.div 

@@ -56,7 +56,7 @@ export const WhyChooseUs = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Tại sao chọn <span className="text-primary">TrekViet</span>?
+            Tại sao chọn <span className="text-primary">BKTreking</span>?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Với hơn 10 năm kinh nghiệm, chúng tôi tự hào là đơn vị hàng đầu trong lĩnh vực trekking và du lịch mạo hiểm tại Việt Nam.

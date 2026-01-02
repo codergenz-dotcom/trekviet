@@ -17,7 +17,7 @@ const testimonials = [
     tour: "Tour Tà Xùa",
     date: "18 tháng 3, 2024",
     rating: 5,
-    content: "Lần đầu đi trekking và tôi có thể nói là hoàn toàn khổng thể nào quên. Team TrekViet rất chu đáo, tự chuẩn bị tỉ mỉ đặc biệt hỗ trợ trên đường đi."
+    content: "Lần đầu đi trekking và tôi có thể nói là hoàn toàn khổng thể nào quên. Team BKTreking rất chu đáo, tự chuẩn bị tỉ mỉ đặc biệt hỗ trợ trên đường đi."
   },
   {
     name: "Phạm Văn Đức",
@@ -63,7 +63,7 @@ export const Testimonials = () => {
             Khách hàng <span className="text-primary">nói gì</span>?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Những chia sẻ chân thực từ những người đã trải nghiệm cùng TrekViet.
+            Những chia sẻ chân thực từ những người đã trải nghiệm cùng BKTreking.
           </p>
         </motion.div>
         

@@ -249,7 +249,7 @@ const TripDetail = () => {
                       <div className="flex flex-wrap gap-4">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Mail className="h-4 w-4" />
-                          <span>contact@trekviet.com</span>
+                          <span>contact@bktreking.com</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Phone className="h-4 w-4" />
