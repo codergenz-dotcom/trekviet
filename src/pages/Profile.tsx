@@ -35,13 +35,12 @@ const Profile = () => {
     <div className="container max-w-4xl py-8 space-y-6">
       {/* Header Card */}
       <Card className="overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-primary/80 to-primary" />
-        <CardContent className="relative pt-0">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end -mt-16">
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative">
-              <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
+              <Avatar className="h-24 w-24 border-4 border-primary/20 shadow-lg">
                 <AvatarImage src="/placeholder.svg" alt={profile.name} />
-                <AvatarFallback className="text-3xl bg-primary/10 text-primary">
+                <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                   {profile.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
@@ -55,7 +54,7 @@ const Profile = () => {
                 </Button>
               )}
             </div>
-            <div className="flex-1 pb-2">
+            <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-bold">{profile.name}</h1>
                 <Badge variant="secondary">Thành viên</Badge>
