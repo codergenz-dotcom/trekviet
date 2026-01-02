@@ -271,7 +271,15 @@ const TripDetail = () => {
                       </p>
                     </div>
 
-                    {!isOrganizer && (
+                    {isOrganizer ? (
+                      <Button
+                        onClick={() => navigate(`/create-trip/self-organize?edit=${id}`)}
+                        variant="outline"
+                        className="w-full h-12 text-base font-semibold"
+                      >
+                        Chỉnh sửa chuyến đi
+                      </Button>
+                    ) : (
                       <Button
                         onClick={handleJoin}
                         className="w-full h-12 text-base font-semibold"
