@@ -1,26 +1,25 @@
 import { useState } from 'react';
-import { Filter, X, ChevronDown } from 'lucide-react';
+import { Filter, X, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { locations, difficultyLabels, type Difficulty } from '@/data/mockTrips';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 export interface Filters {
   locations: string[];
   difficulties: Difficulty[];
-  duration: string;
+  dateFrom: string;
+  dateTo: string;
 }
 
 interface FilterSidebarProps {
@@ -33,7 +32,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, onClear }: FilterSideb
   const [openSections, setOpenSections] = useState({
     location: true,
     difficulty: true,
-    duration: true,
+    dateRange: true,
   });
 
   const toggleLocation = (location: string) => {
@@ -53,7 +52,8 @@ export const FilterSidebar = ({ filters, onFiltersChange, onClear }: FilterSideb
   const hasActiveFilters =
     filters.locations.length > 0 ||
     filters.difficulties.length > 0 ||
-    filters.duration !== '';
+    filters.dateFrom !== '' ||
+    filters.dateTo !== '';
 
   return (
     <aside className="w-full lg:w-72 shrink-0">
@@ -162,37 +162,78 @@ export const FilterSidebar = ({ filters, onFiltersChange, onClear }: FilterSideb
 
           <div className="h-px bg-border" />
 
-          {/* Duration Filter */}
+          {/* Date Range Filter */}
           <Collapsible
-            open={openSections.duration}
+            open={openSections.dateRange}
             onOpenChange={(open) =>
-              setOpenSections((prev) => ({ ...prev, duration: open }))
+              setOpenSections((prev) => ({ ...prev, dateRange: open }))
             }
           >
             <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium hover:text-primary transition-colors">
-              <span>Thời lượng</span>
+              <span>Thời gian khởi hành</span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${
-                  openSections.duration ? 'rotate-180' : ''
+                  openSections.dateRange ? 'rotate-180' : ''
                 }`}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <Select
-                value={filters.duration}
-                onValueChange={(value) =>
-                  onFiltersChange({ ...filters, duration: value })
-                }
-              >
-                <SelectTrigger className="w-full bg-background">
-                  <SelectValue placeholder="Chọn thời lượng" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="1-day">1 ngày</SelectItem>
-                  <SelectItem value="2-3-days">2–3 ngày</SelectItem>
-                  <SelectItem value="multi-day">Nhiều ngày</SelectItem>
-                </SelectContent>
-              </Select>
+            <CollapsibleContent className="pt-2 space-y-3">
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Từ ngày</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !filters.dateFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.dateFrom ? format(new Date(filters.dateFrom), "dd/MM/yyyy", { locale: vi }) : "Chọn ngày"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filters.dateFrom ? new Date(filters.dateFrom) : undefined}
+                      onSelect={(date) =>
+                        onFiltersChange({ ...filters, dateFrom: date ? format(date, "yyyy-MM-dd") : '' })
+                      }
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Đến ngày</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !filters.dateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.dateTo ? format(new Date(filters.dateTo), "dd/MM/yyyy", { locale: vi }) : "Chọn ngày"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filters.dateTo ? new Date(filters.dateTo) : undefined}
+                      onSelect={(date) =>
+                        onFiltersChange({ ...filters, dateTo: date ? format(date, "yyyy-MM-dd") : '' })
+                      }
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         </div>

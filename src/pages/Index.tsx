@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 const initialFilters: Filters = {
   locations: [],
   difficulties: [],
-  duration: '',
+  dateFrom: '',
+  dateTo: '',
 };
 
 const Index = () => {
@@ -68,21 +69,14 @@ const Index = () => {
       );
     }
 
-    // Duration filter
-    if (filters.duration) {
-      result = result.filter((trip) => {
-        if (filters.duration === '1-day') {
-          return trip.duration.includes('1 ngày');
-        } else if (filters.duration === '2-3-days') {
-          return (
-            trip.duration.includes('2 ngày') || trip.duration.includes('3 ngày')
-          );
-        } else if (filters.duration === 'multi-day') {
-          const days = parseInt(trip.duration);
-          return !isNaN(days) && days > 3;
-        }
-        return true;
-      });
+    // Date range filter
+    if (filters.dateFrom) {
+      const fromDate = new Date(filters.dateFrom);
+      result = result.filter((trip) => new Date(trip.departureDate) >= fromDate);
+    }
+    if (filters.dateTo) {
+      const toDate = new Date(filters.dateTo);
+      result = result.filter((trip) => new Date(trip.departureDate) <= toDate);
     }
 
     // Sort by departure date (nearest first)
@@ -101,7 +95,8 @@ const Index = () => {
   const activeFilterCount =
     filters.locations.length +
     filters.difficulties.length +
-    (filters.duration ? 1 : 0);
+    (filters.dateFrom ? 1 : 0) +
+    (filters.dateTo ? 1 : 0);
 
   return (
     <div className="bg-background">
