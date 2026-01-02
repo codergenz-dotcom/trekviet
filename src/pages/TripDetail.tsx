@@ -87,7 +87,8 @@ const TripDetail = () => {
   const trip = mockTrips.find((t) => t.id === id);
 
   // Check if current user is the trip organizer (mock - would be based on auth)
-  const isOrganizer = true;
+  const currentUserId = 'current-user';
+  const isOrganizer = trip?.organizerId === currentUserId;
 
   if (!trip) {
     return (
