@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty } from "@/data/mockTrips";
 import { CompletedTripCard } from "@/components/CompletedTripCard";
-import { usePorter } from "@/contexts/PorterContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 type TripStatus = "draft" | "pending" | "open" | "completed";
 
@@ -70,7 +70,7 @@ const formatDate = (dateStr: string) => {
 
 const MyTrips = () => {
   const navigate = useNavigate();
-  const { isPorter } = usePorter();
+  const { isPorter } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(isPorter ? "created" : "completed");
