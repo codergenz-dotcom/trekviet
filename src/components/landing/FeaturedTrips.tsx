@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Users, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const featuredTrips = [
   {
@@ -94,22 +95,57 @@ const getDifficultyColor = (difficulty: string) => {
   }
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 }
+  }
+};
+
 export const FeaturedTrips = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Cung đường <span className="text-primary">nổi bật</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Khám phá những cung trekking được yêu thích nhất, từ những đỉnh núi hùng vĩ đến các thung lũng xanh mướt.
           </p>
-        </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {featuredTrips.map((trip) => (
-            <div key={trip.id} className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-border">
+            <motion.div 
+              key={trip.id} 
+              variants={itemVariants}
+              className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-border"
+            >
               <div className="relative">
                 <img 
                   src={trip.image} 
@@ -161,17 +197,23 @@ export const FeaturedTrips = () => {
                   </Link>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
         
-        <div className="text-center mt-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-10"
+        >
           <Link to="/trips">
             <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10">
               Xem tất cả cung đường
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
