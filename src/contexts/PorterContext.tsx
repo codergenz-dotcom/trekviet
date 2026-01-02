@@ -29,7 +29,6 @@ export function PorterProvider({ children }: { children: ReactNode }) {
   };
 
   const approvePorter = (userId: string) => {
-    // In mock mode, we only track current user
     if (userId === 'current-user') {
       setPorterStatus('approved');
     }
