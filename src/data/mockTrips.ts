@@ -158,7 +158,72 @@ export const mockTrips: Trip[] = [
   },
 ];
 
-export const locations = ['Lào Cai', 'Sơn La', 'Lai Châu', 'Tây Ninh', 'Hà Giang', 'Yên Bái'];
+export interface CompletedTrip extends Trip {
+  completedDate: string;
+  hasReviewed: boolean;
+}
+
+export const mockCompletedTrips: CompletedTrip[] = [
+  {
+    id: 'c1',
+    name: 'Tà Năng - Phan Dũng',
+    location: 'Lâm Đồng',
+    image: '',
+    difficulty: 'hard',
+    departureDate: '2025-11-15',
+    duration: '3 ngày 2 đêm',
+    tripType: 'trekking',
+    spotsRemaining: 0,
+    totalSpots: 15,
+    leaders: 2,
+    portersAvailable: 2,
+    portersNeeded: 2,
+    estimatedPrice: 3200000,
+    description: 'Cung đường trekking đẹp nhất Việt Nam',
+    completedDate: '2025-11-17',
+    hasReviewed: true,
+  },
+  {
+    id: 'c2',
+    name: 'Núi Chứa Chan',
+    location: 'Đồng Nai',
+    image: '',
+    difficulty: 'easy',
+    departureDate: '2025-12-01',
+    duration: '1 ngày',
+    tripType: 'hiking',
+    spotsRemaining: 0,
+    totalSpots: 20,
+    leaders: 1,
+    portersAvailable: 0,
+    portersNeeded: 0,
+    estimatedPrice: 500000,
+    description: 'Leo núi cuối tuần gần Sài Gòn',
+    completedDate: '2025-12-01',
+    hasReviewed: false,
+  },
+  {
+    id: 'c3',
+    name: 'Nhìu Cồ San',
+    location: 'Lào Cai',
+    image: '',
+    difficulty: 'hard',
+    departureDate: '2025-12-20',
+    duration: '2 ngày 1 đêm',
+    tripType: 'alpine',
+    spotsRemaining: 0,
+    totalSpots: 10,
+    leaders: 2,
+    portersAvailable: 3,
+    portersNeeded: 3,
+    estimatedPrice: 3800000,
+    description: 'Chinh phục đỉnh núi cao thứ 9 Việt Nam',
+    completedDate: '2025-12-21',
+    hasReviewed: false,
+  },
+];
+
+export const locations = ['Lào Cai', 'Sơn La', 'Lai Châu', 'Tây Ninh', 'Hà Giang', 'Yên Bái', 'Lâm Đồng', 'Đồng Nai'];
 
 export const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Dễ',
