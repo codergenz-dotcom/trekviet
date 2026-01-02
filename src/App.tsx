@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PorterProvider } from "@/contexts/PorterContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { DevAccountSwitcher } from "@/components/DevAccountSwitcher";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
@@ -21,39 +23,42 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <PorterProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          {/* Landing page */}
-          <Route path="/" element={<LandingPage />} />
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/porters" element={<AdminPorters />} />
-          {/* Main app routes */}
-          <Route
-            path="/*"
-            element={
-              <AppLayout>
-                <Routes>
-                  <Route path="/trips" element={<Index />} />
-                  <Route path="/create-trip" element={<CreateTrip />} />
-                  <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
-                  <Route path="/trip/:id" element={<TripDetail />} />
-                  <Route path="/my-trips" element={<MyTrips />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AppLayout>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-    </PorterProvider>
+    <AuthProvider>
+      <PorterProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              {/* Landing page */}
+              <Route path="/" element={<LandingPage />} />
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/porters" element={<AdminPorters />} />
+              {/* Main app routes */}
+              <Route
+                path="/*"
+                element={
+                  <AppLayout>
+                    <Routes>
+                      <Route path="/trips" element={<Index />} />
+                      <Route path="/create-trip" element={<CreateTrip />} />
+                      <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
+                      <Route path="/trip/:id" element={<TripDetail />} />
+                      <Route path="/my-trips" element={<MyTrips />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AppLayout>
+                }
+              />
+            </Routes>
+            <DevAccountSwitcher />
+          </BrowserRouter>
+        </TooltipProvider>
+      </PorterProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
