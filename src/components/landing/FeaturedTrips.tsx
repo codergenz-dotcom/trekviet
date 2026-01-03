@@ -1,9 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Users, Star } from "lucide-react";
+import { MapPin, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { mockFeaturedTrips, getDifficultyColor } from "@/data/mockFeaturedTrips";
+import { mockTrips, difficultyLabels } from "@/data/mockTrips";
+
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty) {
+    case "easy":
+      return "bg-green-100 text-green-700";
+    case "medium":
+      return "bg-yellow-100 text-yellow-700";
+    case "hard":
+      return "bg-orange-100 text-orange-700";
+    case "extreme":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const tripImages = [
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800",
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800",
+  "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800",
+  "https://images.unsplash.com/photo-1464278533981-50106e6176b1?w=800",
+  "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800",
+];
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("vi-VN").format(price);
+};
+
+const featuredTrips = mockTrips.slice(0, 6).map((trip, index) => ({
+  ...trip,
+  image: trip.image || tripImages[index] || tripImages[0],
+}));
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -50,7 +83,7 @@ export const FeaturedTrips = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {mockFeaturedTrips.map((trip) => (
+          {featuredTrips.map((trip) => (
             <motion.div
               key={trip.id}
               variants={itemVariants}
@@ -59,16 +92,12 @@ export const FeaturedTrips = () => {
               <div className="relative">
                 <img
                   src={trip.image}
-                  alt={trip.title}
+                  alt={trip.name}
                   className="w-full h-48 object-cover"
                 />
                 <Badge className={`absolute top-3 left-3 ${getDifficultyColor(trip.difficulty)}`}>
-                  {trip.difficulty}
+                  {difficultyLabels[trip.difficulty]}
                 </Badge>
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{trip.rating}</span>
-                </div>
               </div>
 
               <div className="p-4">
@@ -77,7 +106,7 @@ export const FeaturedTrips = () => {
                   {trip.location}
                 </div>
 
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{trip.title}</h3>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{trip.name}</h3>
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{trip.description}</p>
 
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
@@ -87,19 +116,12 @@ export const FeaturedTrips = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    {trip.groupSize}
+                    {trip.totalSpots} người
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    {trip.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through mr-2">
-                        {trip.originalPrice}đ
-                      </span>
-                    )}
-                    <span className="text-lg font-bold text-primary">{trip.price}đ</span>
-                  </div>
+                  <span className="text-lg font-bold text-primary">{formatPrice(trip.estimatedPrice)}đ</span>
                   <Link to={`/trip/${trip.id}`}>
                     <Button size="sm" className="bg-primary hover:bg-primary/90">
                       Chi tiết

@@ -32,7 +32,6 @@ const Profile = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // TODO: Save profile to backend
   };
 
   const handleRegisterPorter = () => {

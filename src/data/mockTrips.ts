@@ -97,7 +97,7 @@ export const mockTrips: Trip[] = [
     id: '5',
     name: 'Núi Bà Đen 1 ngày',
     location: 'Tây Ninh',
-    image: '',
+    image: '/trekking-ba-den-5-600x450.jpg',
     difficulty: 'easy',
     departureDate: '2026-01-12',
     duration: '1 ngày',
