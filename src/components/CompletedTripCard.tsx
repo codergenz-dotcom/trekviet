@@ -53,9 +53,17 @@ export const CompletedTripCard = ({ trip, index, onReview }: CompletedTripCardPr
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
         <div className="relative w-full md:w-48 h-36 md:h-auto shrink-0 overflow-hidden">
-          <div className="absolute inset-0 gradient-mountain flex items-center justify-center opacity-60">
-            <Compass className="h-12 w-12 text-primary-foreground/30" />
-          </div>
+          {trip.image ? (
+            <img
+              src={trip.image}
+              alt={trip.name}
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+            />
+          ) : (
+            <div className="absolute inset-0 gradient-mountain flex items-center justify-center opacity-60">
+              <Compass className="h-12 w-12 text-primary-foreground/30" />
+            </div>
+          )}
           <div className="absolute top-3 left-3">
             <Badge
               variant="secondary"

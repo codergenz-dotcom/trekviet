@@ -1,12 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Mountain, SlidersHorizontal, Calendar, MapPin, Compass } from "lucide-react";
+import { Plus, Mountain, SlidersHorizontal, MapPin, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty } from "@/data/mockTrips";
+import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty, type TripType } from "@/data/mockTrips";
 import { CompletedTripCard } from "@/components/CompletedTripCard";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -16,13 +16,110 @@ interface MyTrip extends Trip {
   status: TripStatus;
 }
 
-// Mock data for user's created trips
-const myTrips: MyTrip[] = [
-  { ...mockTrips[0], status: "open" },
-  { ...mockTrips[2], status: "pending" },
-  { ...mockTrips[4], status: "draft" },
-  { ...mockTrips[6], status: "completed" },
-];
+interface JoinedTrip extends Trip {
+  registrationStatus: "pending" | "approved" | "rejected";
+  registeredAt: string;
+}
+
+const getMyJoinedTrips = (userId: string): JoinedTrip[] => {
+  try {
+    const regStored = localStorage.getItem('tripRegistrations');
+    if (!regStored) return [];
+
+    const allRegistrations = JSON.parse(regStored);
+    const joinedTrips: JoinedTrip[] = [];
+
+    const createdTripsStored = localStorage.getItem('createdTrips');
+    const createdTrips = createdTripsStored ? JSON.parse(createdTripsStored) : [];
+
+    for (const [tripId, regs] of Object.entries(allRegistrations)) {
+      const userReg = (regs as { userId: string; status: string; registeredAt: string }[]).find(r => r.userId === userId);
+      if (!userReg) continue;
+
+      let trip = mockTrips.find(t => t.id === tripId);
+      if (!trip) {
+        const created = createdTrips.find((t: { id: string }) => t.id === tripId);
+        if (created) {
+          trip = {
+            id: created.id,
+            name: created.name,
+            location: created.location,
+            image: created.image || created.images?.[0] || '',
+            difficulty: created.difficulty || 'medium',
+            departureDate: created.departureDate || new Date().toISOString().split('T')[0],
+            duration: created.durationType === 'single-day' ? '1 ngày' : `${created.durationDays || 2} ngày`,
+            tripType: 'trekking' as TripType,
+            spotsRemaining: (created.maxParticipants || 20) - (created.participants || 0),
+            totalSpots: created.maxParticipants || 20,
+            leaders: 1,
+            portersAvailable: 0,
+            portersNeeded: 1,
+            estimatedPrice: created.estimatedPrice || 0,
+            description: '',
+            organizerId: created.createdBy || '',
+          } as Trip;
+        }
+      }
+
+      if (trip) {
+        joinedTrips.push({
+          ...trip,
+          registrationStatus: userReg.status as "pending" | "approved" | "rejected",
+          registeredAt: userReg.registeredAt,
+        });
+      }
+    }
+
+    return joinedTrips;
+  } catch {
+    return [];
+  }
+};
+
+const getMyCreatedTrips = (userId: string): MyTrip[] => {
+  try {
+    const stored = localStorage.getItem('createdTrips');
+    if (!stored) return [];
+    const trips = JSON.parse(stored);
+    return trips
+      .filter((t: { createdBy?: string }) => t.createdBy === userId)
+      .map((t: {
+        id: string;
+        name: string;
+        location: string;
+        image?: string;
+        images?: string[];
+        difficulty: string;
+        departureDate?: string;
+        durationDays?: number;
+        durationType?: string;
+        maxParticipants?: number;
+        participants?: number;
+        status: string;
+        estimatedPrice?: number;
+      }): MyTrip => ({
+        id: t.id,
+        name: t.name,
+        location: t.location,
+        image: t.image || t.images?.[0] || '',
+        difficulty: (t.difficulty || 'medium') as Difficulty,
+        departureDate: t.departureDate || new Date().toISOString().split('T')[0],
+        duration: t.durationType === 'single-day' ? '1 ngày' : `${t.durationDays || 2} ngày`,
+        tripType: 'trekking' as TripType,
+        spotsRemaining: (t.maxParticipants || 20) - (t.participants || 0),
+        totalSpots: t.maxParticipants || 20,
+        leaders: 1,
+        portersAvailable: 0,
+        portersNeeded: 1,
+        estimatedPrice: t.estimatedPrice || 0,
+        description: '',
+        organizerId: userId,
+        status: (t.status === 'approved' ? 'open' : t.status) as TripStatus,
+      }));
+  } catch {
+    return [];
+  }
+};
 
 const statusLabels: Record<TripStatus, string> = {
   draft: "Nháp",
@@ -70,10 +167,19 @@ const formatDate = (dateStr: string) => {
 
 const MyTrips = () => {
   const navigate = useNavigate();
-  const { isPorter } = useAuth();
+  const { isPorter, currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(isPorter ? "created" : "completed");
+  const [activeTab, setActiveTab] = useState(isPorter ? "created" : "joined");
+  const [myTrips, setMyTrips] = useState<MyTrip[]>([]);
+  const [joinedTrips, setJoinedTrips] = useState<JoinedTrip[]>([]);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      setMyTrips(getMyCreatedTrips(currentUser.id));
+      setJoinedTrips(getMyJoinedTrips(currentUser.id));
+    }
+  }, [currentUser?.id]);
 
   const filteredTrips = useMemo(() => {
     if (!searchQuery) return myTrips;
@@ -83,7 +189,7 @@ const MyTrips = () => {
         trip.name.toLowerCase().includes(query) ||
         trip.location.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, myTrips]);
 
   const filteredCompletedTrips = useMemo(() => {
     if (!searchQuery) return mockCompletedTrips;
@@ -95,9 +201,18 @@ const MyTrips = () => {
     );
   }, [searchQuery]);
 
+  const filteredJoinedTrips = useMemo(() => {
+    if (!searchQuery) return joinedTrips;
+    const query = searchQuery.toLowerCase();
+    return joinedTrips.filter(
+      (trip) =>
+        trip.name.toLowerCase().includes(query) ||
+        trip.location.toLowerCase().includes(query)
+    );
+  }, [searchQuery, joinedTrips]);
+
   const handleReview = (tripId: string) => {
     console.log("Opening review for trip:", tripId);
-    // TODO: Open review modal
   };
 
   return (
@@ -176,6 +291,9 @@ const MyTrips = () => {
                     Chuyến đi đã tạo ({filteredTrips.length})
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="joined">
+                  Đang tham gia ({filteredJoinedTrips.length})
+                </TabsTrigger>
                 <TabsTrigger value="completed">
                   Đã hoàn thành ({filteredCompletedTrips.length})
                 </TabsTrigger>
@@ -211,6 +329,31 @@ const MyTrips = () => {
                   )}
                 </TabsContent>
               )}
+
+              <TabsContent value="joined" className="mt-0">
+                {filteredJoinedTrips.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredJoinedTrips.map((trip, index) => (
+                      <JoinedTripCard key={trip.id} trip={trip} index={index} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="p-4 rounded-full bg-muted mb-4">
+                      <Mountain className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Chưa tham gia chuyến đi nào
+                    </h3>
+                    <p className="text-muted-foreground max-w-md">
+                      Khám phá và tham gia các chuyến đi thú vị!
+                    </p>
+                    <Button className="mt-4" onClick={() => navigate("/trips")}>
+                      Khám phá chuyến đi
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
 
               <TabsContent value="completed" className="mt-0">
                 {filteredCompletedTrips.length > 0 ? (
@@ -313,9 +456,17 @@ const MyTripCard = ({ trip, index }: MyTripCardProps) => {
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
         <div className="relative w-full md:w-56 h-40 md:h-auto shrink-0 overflow-hidden">
-          <div className="absolute inset-0 gradient-mountain flex items-center justify-center">
-            <Compass className="h-12 w-12 text-primary-foreground/30" />
-          </div>
+          {trip.image ? (
+            <img
+              src={trip.image}
+              alt={trip.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 gradient-mountain flex items-center justify-center">
+              <Compass className="h-12 w-12 text-primary-foreground/30" />
+            </div>
+          )}
         </div>
 
         {/* Content Section */}
@@ -378,6 +529,136 @@ const MyTripCard = ({ trip, index }: MyTripCardProps) => {
               <span className="font-medium text-foreground">
                 {trip.portersAvailable}/{trip.portersNeeded}
               </span>
+            </div>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/trip/${trip.id}`);
+              }}
+            >
+              Chi tiết
+            </Button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const registrationStatusLabels = {
+  pending: "Chờ duyệt",
+  approved: "Đã duyệt",
+  rejected: "Bị từ chối",
+};
+
+const registrationStatusClasses = {
+  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500",
+  approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500",
+  rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-500",
+};
+
+interface JoinedTripCardProps {
+  trip: JoinedTrip;
+  index: number;
+}
+
+const JoinedTripCard = ({ trip, index }: JoinedTripCardProps) => {
+  const navigate = useNavigate();
+  const spotsPercentage = (trip.spotsRemaining / trip.totalSpots) * 100;
+  const isLowSpots = spotsPercentage <= 30;
+
+  return (
+    <article
+      className="group bg-card rounded-2xl border border-border/60 shadow-card overflow-hidden animate-fade-in hover:shadow-lg transition-shadow cursor-pointer"
+      style={{ animationDelay: `${index * 80}ms` }}
+      onClick={() => navigate(`/trip/${trip.id}`)}
+    >
+      <div className="flex flex-col md:flex-row">
+        {/* Image Section */}
+        <div className="relative w-full md:w-56 h-40 md:h-auto shrink-0 overflow-hidden">
+          {trip.image ? (
+            <img
+              src={trip.image}
+              alt={trip.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 gradient-mountain flex items-center justify-center">
+              <Compass className="h-12 w-12 text-primary-foreground/30" />
+            </div>
+          )}
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-1 p-5">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {trip.name}
+                </h3>
+                <Badge className={registrationStatusClasses[trip.registrationStatus]}>
+                  {registrationStatusLabels[trip.registrationStatus]}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {trip.location}
+                </span>
+                <Badge className={`${getDifficultyClass(trip.difficulty)} border text-xs`}>
+                  {difficultyLabels[trip.difficulty]}
+                </Badge>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-lg font-bold text-primary">
+                {formatPrice(trip.estimatedPrice)}
+              </p>
+              <p className="text-xs text-muted-foreground">ước tính</p>
+            </div>
+          </div>
+
+          {/* Trip Info Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm">
+            <div>
+              <span className="text-muted-foreground">Khởi hành:</span>
+              <p className="font-medium text-foreground">{formatDate(trip.departureDate)}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Thời gian:</span>
+              <p className="font-medium text-foreground">{trip.duration}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Số chỗ còn lại:</span>
+              <p className={`font-medium ${isLowSpots ? "text-accent" : "text-foreground"}`}>
+                {trip.spotsRemaining}/{trip.totalSpots}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Đăng ký lúc:</span>
+              <p className="font-medium text-foreground">
+                {trip.registeredAt ? formatDate(trip.registeredAt) : "-"}
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-3 border-t border-border/60">
+            <div className="text-sm text-muted-foreground">
+              {trip.registrationStatus === "pending" && (
+                <span className="text-yellow-600 dark:text-yellow-500">Đang chờ người tổ chức duyệt đơn</span>
+              )}
+              {trip.registrationStatus === "approved" && (
+                <span className="text-green-600 dark:text-green-500">Bạn đã được xác nhận tham gia</span>
+              )}
+              {trip.registrationStatus === "rejected" && (
+                <span className="text-red-600 dark:text-red-500">Đơn đăng ký đã bị từ chối</span>
+              )}
             </div>
 
             <Button

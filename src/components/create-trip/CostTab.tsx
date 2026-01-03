@@ -5,6 +5,83 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { TripFormData } from "@/pages/CreateTripSelfOrganize";
 
+interface CostTableProps {
+  items: { content: string; cost: string }[];
+  onUpdate: (index: number, field: "content" | "cost", value: string) => void;
+  onRemove: (index: number) => void;
+  onAdd: () => void;
+  addLabel: string;
+}
+
+const CostTable = ({
+  items,
+  onUpdate,
+  onRemove,
+  onAdd,
+  addLabel,
+}: CostTableProps) => (
+  <div className="space-y-3">
+    <div className="border border-border rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="grid grid-cols-12 bg-muted/50 border-b border-border">
+        <div className="col-span-1 p-3 text-sm font-medium text-muted-foreground"></div>
+        <div className="col-span-6 p-3 text-sm font-medium border-l border-border">
+          Nội dung
+        </div>
+        <div className="col-span-4 p-3 text-sm font-medium border-l border-border">
+          Chi phí
+        </div>
+        <div className="col-span-1 p-3"></div>
+      </div>
+
+      {/* Rows */}
+      {items.map((item, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-12 border-b border-border last:border-b-0"
+        >
+          <div className="col-span-1 p-3 flex items-center justify-center text-muted-foreground">
+            {index + 1}
+          </div>
+          <div className="col-span-6 p-2 border-l border-border">
+            <Input
+              placeholder="Mô tả chi phí..."
+              value={item.content}
+              onChange={(e) => onUpdate(index, "content", e.target.value)}
+              className="border-0 shadow-none focus-visible:ring-0"
+            />
+          </div>
+          <div className="col-span-4 p-2 border-l border-border">
+            <Input
+              placeholder="VD: 500,000đ"
+              value={item.cost}
+              onChange={(e) => onUpdate(index, "cost", e.target.value)}
+              className="border-0 shadow-none focus-visible:ring-0"
+            />
+          </div>
+          <div className="col-span-1 p-2 flex items-center justify-center border-l border-border">
+            {items.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                onClick={() => onRemove(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <Button variant="outline" size="sm" onClick={onAdd} className="gap-1">
+      <Plus className="h-4 w-4" />
+      {addLabel}
+    </Button>
+  </div>
+);
+
 interface CostTabProps {
   formData: TripFormData;
   updateFormData: (updates: Partial<TripFormData>) => void;
@@ -54,81 +131,6 @@ export const CostTab = ({ formData, updateFormData }: CostTabProps) => {
     newCosts[index] = { ...newCosts[index], [field]: value };
     updateFormData({ additionalCosts: newCosts });
   };
-
-  const CostTable = ({
-    items,
-    onUpdate,
-    onRemove,
-    onAdd,
-    addLabel,
-  }: {
-    items: { content: string; cost: string }[];
-    onUpdate: (index: number, field: "content" | "cost", value: string) => void;
-    onRemove: (index: number) => void;
-    onAdd: () => void;
-    addLabel: string;
-  }) => (
-    <div className="space-y-3">
-      <div className="border border-border rounded-lg overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-12 bg-muted/50 border-b border-border">
-          <div className="col-span-1 p-3 text-sm font-medium text-muted-foreground"></div>
-          <div className="col-span-6 p-3 text-sm font-medium border-l border-border">
-            Nội dung
-          </div>
-          <div className="col-span-4 p-3 text-sm font-medium border-l border-border">
-            Chi phí
-          </div>
-          <div className="col-span-1 p-3"></div>
-        </div>
-
-        {/* Rows */}
-        {items.map((item, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-12 border-b border-border last:border-b-0"
-          >
-            <div className="col-span-1 p-3 flex items-center justify-center text-muted-foreground">
-              {index + 1}
-            </div>
-            <div className="col-span-6 p-2 border-l border-border">
-              <Input
-                placeholder="Mô tả chi phí..."
-                value={item.content}
-                onChange={(e) => onUpdate(index, "content", e.target.value)}
-                className="border-0 shadow-none focus-visible:ring-0"
-              />
-            </div>
-            <div className="col-span-4 p-2 border-l border-border">
-              <Input
-                placeholder="VD: 500,000đ"
-                value={item.cost}
-                onChange={(e) => onUpdate(index, "cost", e.target.value)}
-                className="border-0 shadow-none focus-visible:ring-0"
-              />
-            </div>
-            <div className="col-span-1 p-2 flex items-center justify-center border-l border-border">
-              {items.length > 1 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => onRemove(index)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Button variant="outline" size="sm" onClick={onAdd} className="gap-1">
-        <Plus className="h-4 w-4" />
-        {addLabel}
-      </Button>
-    </div>
-  );
 
   return (
     <div className="space-y-8">

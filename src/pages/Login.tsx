@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const handleGoogleLogin = () => {
-    // TODO: Implement Google login
     console.log("Google login");
   };
 

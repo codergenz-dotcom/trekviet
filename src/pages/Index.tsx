@@ -6,7 +6,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { FilterSidebar, type Filters } from '@/components/FilterSidebar';
 import { TripCard } from '@/components/TripCard';
 import { CompletedTripCard } from '@/components/CompletedTripCard';
-import { mockTrips, mockCompletedTrips, type Trip } from '@/data/mockTrips';
+import { mockTrips, mockCompletedTrips, type Trip, type Difficulty, type TripType } from '@/data/mockTrips';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,16 +18,92 @@ const initialFilters: Filters = {
   dateTo: '',
 };
 
+const parseCostString = (cost: string): number => {
+  if (!cost) return 0;
+  let cleaned = cost.toLowerCase().replace(/[^\d.,trđk]/g, '');
+
+  if (cleaned.includes('tr')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000000;
+  }
+
+  if (cleaned.includes('k')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000;
+  }
+
+  cleaned = cleaned.replace(/,/g, '').replace('đ', '');
+  return parseFloat(cleaned) || 0;
+};
+
+const calculateEstimatedPrice = (includedCosts: { content: string; cost: string }[]): number => {
+  return includedCosts.reduce((sum, item) => sum + parseCostString(item.cost), 0);
+};
+
+const getCreatedTrips = (): Trip[] => {
+  try {
+    const stored = localStorage.getItem('createdTrips');
+    if (!stored) return [];
+    const trips = JSON.parse(stored);
+    return trips
+      .filter((t: { status: string }) => t.status === 'approved')
+      .map((t: {
+        id: string;
+        name: string;
+        location: string;
+        image?: string;
+        images?: string[];
+        difficulty: string;
+        departureDate?: string;
+        date?: string;
+        durationDays?: number;
+        durationType?: string;
+        maxParticipants?: number;
+        participants?: number;
+        createdBy?: string;
+        includedCosts?: { content: string; cost: string }[];
+        estimatedPrice?: number;
+      }) => ({
+        id: t.id,
+        name: t.name,
+        location: t.location,
+        image: t.image || t.images?.[0] || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b',
+        difficulty: (t.difficulty || 'medium') as Difficulty,
+        departureDate: typeof t.departureDate === 'string'
+          ? t.departureDate
+          : t.departureDate
+            ? new Date(t.departureDate).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0],
+        duration: t.durationType === 'single-day' ? '1 ngày' : `${t.durationDays || 2} ngày`,
+        tripType: 'trekking' as TripType,
+        spotsRemaining: (t.maxParticipants || 20) - (t.participants || 0),
+        totalSpots: t.maxParticipants || 20,
+        leaders: 1,
+        portersAvailable: 0,
+        portersNeeded: 1,
+        estimatedPrice: t.estimatedPrice || calculateEstimatedPrice(t.includedCosts || []),
+        description: '',
+        organizerId: t.createdBy || '',
+      }));
+  } catch {
+    return [];
+  }
+};
+
 const Index = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { isPorter } = useAuth();
+  const { isPorter, currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [createdTrips, setCreatedTrips] = useState<Trip[]>([]);
 
-  // Apply URL search params on mount
+  useEffect(() => {
+    setCreatedTrips(getCreatedTrips());
+  }, []);
+
   useEffect(() => {
     const location = searchParams.get('location');
     const difficulty = searchParams.get('difficulty');
@@ -49,9 +125,12 @@ const Index = () => {
   };
 
   const filteredTrips = useMemo(() => {
-    let result = [...mockTrips];
+    let result = [...mockTrips, ...createdTrips];
 
-    // Search filter
+    if (currentUser?.id) {
+      result = result.filter((trip) => trip.organizerId !== currentUser.id);
+    }
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -62,19 +141,16 @@ const Index = () => {
       );
     }
 
-    // Location filter
     if (filters.locations.length > 0) {
       result = result.filter((trip) => filters.locations.includes(trip.location));
     }
 
-    // Difficulty filter
     if (filters.difficulties.length > 0) {
       result = result.filter((trip) =>
         filters.difficulties.includes(trip.difficulty)
       );
     }
 
-    // Date range filter
     if (filters.dateFrom) {
       const fromDate = new Date(filters.dateFrom);
       result = result.filter((trip) => new Date(trip.departureDate) >= fromDate);
@@ -84,14 +160,13 @@ const Index = () => {
       result = result.filter((trip) => new Date(trip.departureDate) <= toDate);
     }
 
-    // Sort by departure date (nearest first)
     result.sort(
       (a, b) =>
         new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
     );
 
     return result;
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, createdTrips, currentUser?.id]);
 
   const clearFilters = () => {
     setFilters(initialFilters);

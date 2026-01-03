@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle, Check, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,101 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { mockTrips, difficultyLabels, tripTypeLabels, type Trip } from "@/data/mockTrips";
+import { mockTrips, difficultyLabels, tripTypeLabels, type Trip, type Difficulty, type TripType } from "@/data/mockTrips";
+import { useAuth } from "@/contexts/AuthContext";
 
 type RegistrationStatus = "pending" | "approved" | "rejected";
 
+interface CreatedTrip {
+  id: string;
+  name: string;
+  location: string;
+  difficulty: string;
+  departureDate?: string | Date;
+  registrationDeadline?: string | Date;
+  contactEmail?: string;
+  contactPhone?: string;
+  discussionLink?: string;
+  images?: string[];
+  image?: string;
+  durationType?: "multi-day" | "single-day";
+  durationDays?: number;
+  schedule?: { time: string; content: string }[];
+  includedCosts?: { content: string; cost: string }[];
+  additionalCosts?: { content: string; cost: string }[];
+  costNotes?: string;
+  preparations?: string[];
+  status: string;
+  createdBy?: string;
+  createdByName?: string;
+  maxParticipants?: number;
+  participants?: number;
+}
+
+const parseCostString = (cost: string): number => {
+  if (!cost) return 0;
+  let cleaned = cost.toLowerCase().replace(/[^\d.,trđk]/g, '');
+
+  if (cleaned.includes('tr')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000000;
+  }
+
+  if (cleaned.includes('k')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000;
+  }
+
+  cleaned = cleaned.replace(/,/g, '').replace('đ', '');
+  return parseFloat(cleaned) || 0;
+};
+
+const calculateEstimatedPrice = (includedCosts: { content: string; cost: string }[]): number => {
+  return includedCosts.reduce((sum, item) => sum + parseCostString(item.cost), 0);
+};
+
+const getCreatedTripById = (id: string): CreatedTrip | null => {
+  try {
+    const stored = localStorage.getItem('createdTrips');
+    if (!stored) return null;
+    const trips: CreatedTrip[] = JSON.parse(stored);
+    return trips.find(t => t.id === id) || null;
+  } catch {
+    return null;
+  }
+};
+
+const convertToTrip = (created: CreatedTrip): Trip => {
+  const departureDate = created.departureDate
+    ? (typeof created.departureDate === 'string'
+        ? created.departureDate
+        : new Date(created.departureDate).toISOString().split('T')[0])
+    : new Date().toISOString().split('T')[0];
+
+  return {
+    id: created.id,
+    name: created.name,
+    location: created.location,
+    image: created.image || created.images?.[0] || '',
+    difficulty: (created.difficulty || 'medium') as Difficulty,
+    departureDate,
+    duration: created.durationType === 'single-day' ? '1 ngày' : `${created.durationDays || 2} ngày`,
+    tripType: 'trekking' as TripType,
+    spotsRemaining: (created.maxParticipants || 20) - (created.participants || 0),
+    totalSpots: created.maxParticipants || 20,
+    leaders: 1,
+    portersAvailable: 0,
+    portersNeeded: 1,
+    estimatedPrice: calculateEstimatedPrice(created.includedCosts || []),
+    description: '',
+    organizerId: created.createdBy || '',
+  };
+};
+
 interface Registration {
   id: string;
+  tripId: string;
+  userId: string;
   name: string;
   email: string;
   phone: string;
@@ -35,14 +124,28 @@ interface Registration {
   registeredAt: string;
 }
 
-// Mock registration data
-const mockRegistrations: Registration[] = [
-  { id: "1", name: "Nguyễn Văn A", email: "nguyenvana@gmail.com", phone: "0901234567", status: "pending", registeredAt: "2026-01-05" },
-  { id: "2", name: "Trần Thị B", email: "tranthib@gmail.com", phone: "0912345678", status: "pending", registeredAt: "2026-01-06" },
-  { id: "3", name: "Lê Văn C", email: "levanc@gmail.com", phone: "0923456789", status: "approved", registeredAt: "2026-01-04" },
-  { id: "4", name: "Phạm Thị D", email: "phamthid@gmail.com", phone: "0934567890", status: "approved", registeredAt: "2026-01-03" },
-  { id: "5", name: "Hoàng Văn E", email: "hoangvane@gmail.com", phone: "0945678901", status: "rejected", registeredAt: "2026-01-02" },
-];
+const getRegistrationsByTripId = (tripId: string): Registration[] => {
+  try {
+    const stored = localStorage.getItem('tripRegistrations');
+    if (!stored) return [];
+    const all = JSON.parse(stored);
+    return all[tripId] || [];
+  } catch {
+    return [];
+  }
+};
+
+const saveRegistrations = (tripId: string, registrations: Registration[]) => {
+  try {
+    const stored = localStorage.getItem('tripRegistrations');
+    const all = stored ? JSON.parse(stored) : {};
+    all[tripId] = registrations;
+    localStorage.setItem('tripRegistrations', JSON.stringify(all));
+  } catch {
+    console.error('Failed to save registrations');
+  }
+};
+
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -81,14 +184,23 @@ const TripDetail = () => {
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [registrations, setRegistrations] = useState<Registration[]>(mockRegistrations);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
-  const trip = mockTrips.find((t) => t.id === id);
+  useEffect(() => {
+    if (id) {
+      const storedRegs = getRegistrationsByTripId(id);
+      setRegistrations(storedRegs);
+    }
+  }, [id]);
 
-  // Check if current user is the trip organizer (mock - would be based on auth)
-  const currentUserId = 'current-user';
-  const isOrganizer = trip?.organizerId === currentUserId;
+  const mockTrip = mockTrips.find((t) => t.id === id);
+  const createdTrip = id ? getCreatedTripById(id) : null;
+
+  const trip: Trip | null = mockTrip || (createdTrip ? convertToTrip(createdTrip) : null);
+
+  const isOrganizer = trip?.organizerId === currentUser?.id;
 
   if (!trip) {
     return (
@@ -102,24 +214,70 @@ const TripDetail = () => {
   }
 
   const handleJoin = () => {
+    if (!currentUser) {
+      toast({
+        title: "Vui lòng đăng nhập",
+        description: "Bạn cần đăng nhập để tham gia chuyến đi.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const existing = registrations.find(r => r.userId === currentUser.id);
+    if (existing) {
+      toast({
+        title: "Bạn đã đăng ký",
+        description: "Bạn đã đăng ký chuyến đi này rồi.",
+      });
+      return;
+    }
+
+    const newReg: Registration = {
+      id: `reg-${Date.now()}`,
+      tripId: id!,
+      userId: currentUser.id,
+      name: currentUser.name,
+      email: currentUser.email || "",
+      phone: currentUser.phone || "",
+      status: "pending",
+      registeredAt: new Date().toISOString(),
+    };
+
+    const updated = [...registrations, newReg];
+    setRegistrations(updated);
+    saveRegistrations(id!, updated);
     setShowSuccessModal(true);
   };
 
   const handleApprove = (registrationId: string) => {
-    setRegistrations((prev) =>
-      prev.map((r) => (r.id === registrationId ? { ...r, status: "approved" as RegistrationStatus } : r))
+    const updated = registrations.map(r =>
+      r.id === registrationId ? { ...r, status: "approved" as RegistrationStatus } : r
     );
+    setRegistrations(updated);
+    saveRegistrations(id!, updated);
+    toast({
+      title: "Đã duyệt",
+      description: "Thành viên đã được duyệt tham gia.",
+    });
   };
 
   const handleReject = (registrationId: string) => {
-    setRegistrations((prev) =>
-      prev.map((r) => (r.id === registrationId ? { ...r, status: "rejected" as RegistrationStatus } : r))
+    const updated = registrations.map(r =>
+      r.id === registrationId ? { ...r, status: "rejected" as RegistrationStatus } : r
     );
+    setRegistrations(updated);
+    saveRegistrations(id!, updated);
+    toast({
+      title: "Đã từ chối",
+      description: "Đơn đăng ký đã bị từ chối.",
+    });
   };
 
   const pendingRegistrations = registrations.filter((r) => r.status === "pending");
   const approvedRegistrations = registrations.filter((r) => r.status === "approved");
   const rejectedRegistrations = registrations.filter((r) => r.status === "rejected");
+
+  const currentUserRegistration = registrations.find(r => r.userId === currentUser?.id);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
@@ -250,29 +408,39 @@ const TripDetail = () => {
                       <div className="flex flex-wrap gap-4">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Mail className="h-4 w-4" />
-                          <span>contact@bktreking.com</span>
+                          <span>{createdTrip?.contactEmail || "contact@viettrekking.com"}</span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Phone className="h-4 w-4" />
-                          <span>0123 456 789 (Zalo)</span>
+                          <span>{createdTrip?.contactPhone || "0123 456 789"} (Zalo)</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4 text-primary" />
-                        <a href="#" className="text-primary hover:underline">
-                          Link nhóm thảo luận
-                        </a>
-                      </div>
+                      {(createdTrip?.discussionLink || !createdTrip) && (
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="h-4 w-4 text-primary" />
+                          <a href={createdTrip?.discussionLink || "#"} className="text-primary hover:underline">
+                            Link nhóm thảo luận
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Right - Image & Price */}
                   <div className="space-y-4">
-                    <div className="aspect-[4/3] rounded-xl bg-muted flex items-center justify-center border border-border">
-                      <div className="text-center text-muted-foreground">
-                        <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <span className="text-sm">Ảnh chuyến đi</span>
-                      </div>
+                    <div className="aspect-[4/3] rounded-xl bg-muted flex items-center justify-center border border-border overflow-hidden">
+                      {(trip.image || createdTrip?.images?.[0]) ? (
+                        <img
+                          src={trip.image || createdTrip?.images?.[0]}
+                          alt={trip.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center text-muted-foreground">
+                          <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                          <span className="text-sm">Ảnh chuyến đi</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-center">
@@ -302,6 +470,29 @@ const TripDetail = () => {
                           Hủy chuyến đi
                         </Button>
                       </div>
+                    ) : currentUserRegistration ? (
+                      <div className="space-y-2">
+                        <div className="w-full h-12 flex items-center justify-center rounded-md border">
+                          {currentUserRegistration.status === "pending" && (
+                            <Badge variant="secondary" className="text-sm">
+                              Đang chờ duyệt
+                            </Badge>
+                          )}
+                          {currentUserRegistration.status === "approved" && (
+                            <Badge className="bg-green-100 text-green-800 border-0 text-sm">
+                              Đã được duyệt
+                            </Badge>
+                          )}
+                          {currentUserRegistration.status === "rejected" && (
+                            <Badge variant="destructive" className="text-sm">
+                              Đã bị từ chối
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center">
+                          Bạn đã đăng ký chuyến đi này
+                        </p>
+                      </div>
                     ) : (
                       <Button
                         onClick={handleJoin}
@@ -317,27 +508,42 @@ const TripDetail = () => {
               <TabsContent value="schedule" className="mt-0">
                 <div className="space-y-4">
                   <h3 className="font-semibold text-foreground">Lịch trình chi tiết</h3>
-                  <div className="space-y-4">
-                    <div className="border border-border rounded-lg p-4">
-                      <h4 className="font-medium text-foreground mb-3">Ngày 1</h4>
-                      <ul className="space-y-2 text-muted-foreground">
-                        <li>• 5:00 - Tập trung xuất phát</li>
-                        <li>• 8:00 - Đến điểm leo núi, ăn sáng</li>
-                        <li>• 9:00 - Bắt đầu hành trình</li>
-                        <li>• 12:00 - Nghỉ trưa</li>
-                        <li>• 17:00 - Đến điểm cắm trại</li>
-                      </ul>
+                  {createdTrip?.schedule && createdTrip.schedule.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="border border-border rounded-lg p-4">
+                        <ul className="space-y-2 text-muted-foreground">
+                          {createdTrip.schedule.map((item, index) => (
+                            <li key={index}>
+                              {item.time && <span className="font-medium">{item.time} - </span>}
+                              {item.content}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="border border-border rounded-lg p-4">
-                      <h4 className="font-medium text-foreground mb-3">Ngày 2</h4>
-                      <ul className="space-y-2 text-muted-foreground">
-                        <li>• 4:00 - Thức dậy, săn mây</li>
-                        <li>• 6:00 - Ăn sáng</li>
-                        <li>• 7:00 - Xuống núi</li>
-                        <li>• 12:00 - Về đến điểm xuất phát</li>
-                      </ul>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="border border-border rounded-lg p-4">
+                        <h4 className="font-medium text-foreground mb-3">Ngày 1</h4>
+                        <ul className="space-y-2 text-muted-foreground">
+                          <li>• 5:00 - Tập trung xuất phát</li>
+                          <li>• 8:00 - Đến điểm leo núi, ăn sáng</li>
+                          <li>• 9:00 - Bắt đầu hành trình</li>
+                          <li>• 12:00 - Nghỉ trưa</li>
+                          <li>• 17:00 - Đến điểm cắm trại</li>
+                        </ul>
+                      </div>
+                      <div className="border border-border rounded-lg p-4">
+                        <h4 className="font-medium text-foreground mb-3">Ngày 2</h4>
+                        <ul className="space-y-2 text-muted-foreground">
+                          <li>• 4:00 - Thức dậy, săn mây</li>
+                          <li>• 6:00 - Ăn sáng</li>
+                          <li>• 7:00 - Xuống núi</li>
+                          <li>• 12:00 - Về đến điểm xuất phát</li>
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </TabsContent>
 
@@ -345,38 +551,74 @@ const TripDetail = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-semibold text-foreground mb-3">Chi phí bao gồm</h3>
-                    <ul className="space-y-2 text-muted-foreground">
-                      <li>• Xe đưa đón từ Hà Nội</li>
-                      <li>• Leader dẫn đường</li>
-                      <li>• Lều trại, túi ngủ</li>
-                      <li>• Bảo hiểm du lịch</li>
-                      <li>• Các bữa ăn theo chương trình</li>
-                    </ul>
+                    {createdTrip?.includedCosts && createdTrip.includedCosts.length > 0 ? (
+                      <ul className="space-y-2 text-muted-foreground">
+                        {createdTrip.includedCosts.map((item, index) => (
+                          <li key={index}>
+                            • {item.content}
+                            {item.cost && <span className="text-foreground font-medium"> - {item.cost}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ul className="space-y-2 text-muted-foreground">
+                        <li>• Xe đưa đón từ Hà Nội</li>
+                        <li>• Leader dẫn đường</li>
+                        <li>• Lều trại, túi ngủ</li>
+                        <li>• Bảo hiểm du lịch</li>
+                        <li>• Các bữa ăn theo chương trình</li>
+                      </ul>
+                    )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-3">Chi phí chưa bao gồm</h3>
-                    <ul className="space-y-2 text-muted-foreground">
-                      <li>• Porter (nếu cần)</li>
-                      <li>• Đồ uống riêng</li>
-                      <li>• Chi phí cá nhân khác</li>
-                    </ul>
+                    <h3 className="font-semibold text-foreground mb-3">Chi phí chưa bao gồm / phát sinh</h3>
+                    {createdTrip?.additionalCosts && createdTrip.additionalCosts.length > 0 ? (
+                      <ul className="space-y-2 text-muted-foreground">
+                        {createdTrip.additionalCosts.map((item, index) => (
+                          <li key={index}>
+                            • {item.content}
+                            {item.cost && <span className="text-foreground font-medium"> - {item.cost}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <ul className="space-y-2 text-muted-foreground">
+                        <li>• Porter (nếu cần)</li>
+                        <li>• Đồ uống riêng</li>
+                        <li>• Chi phí cá nhân khác</li>
+                      </ul>
+                    )}
                   </div>
                 </div>
+                {createdTrip?.costNotes && (
+                  <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                    <h4 className="font-medium text-foreground mb-2">Lưu ý:</h4>
+                    <p className="text-muted-foreground">{createdTrip.costNotes}</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="preparation" className="mt-0">
                 <div className="space-y-4">
                   <h3 className="font-semibold text-foreground">Cần chuẩn bị</h3>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li>• Giày leo núi chuyên dụng</li>
-                    <li>• Áo khoác chống nước, giữ ấm</li>
-                    <li>• Đèn pin/đèn đội đầu</li>
-                    <li>• Bình nước cá nhân (ít nhất 1.5L)</li>
-                    <li>• Đồ dùng cá nhân (khăn, kem chống nắng...)</li>
-                    <li>• Thuốc cá nhân (nếu có)</li>
-                    <li>• Găng tay, mũ/nón</li>
-                    <li>• Gậy leo núi (nếu có)</li>
-                  </ul>
+                  {createdTrip?.preparations && createdTrip.preparations.length > 0 && createdTrip.preparations.some(p => p.trim()) ? (
+                    <ul className="space-y-2 text-muted-foreground">
+                      {createdTrip.preparations.filter(p => p.trim()).map((item, index) => (
+                        <li key={index}>• {item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <ul className="space-y-2 text-muted-foreground">
+                      <li>• Giày leo núi chuyên dụng</li>
+                      <li>• Áo khoác chống nước, giữ ấm</li>
+                      <li>• Đèn pin/đèn đội đầu</li>
+                      <li>• Bình nước cá nhân (ít nhất 1.5L)</li>
+                      <li>• Đồ dùng cá nhân (khăn, kem chống nắng...)</li>
+                      <li>• Thuốc cá nhân (nếu có)</li>
+                      <li>• Găng tay, mũ/nón</li>
+                      <li>• Gậy leo núi (nếu có)</li>
+                    </ul>
+                  )}
                 </div>
               </TabsContent>
 

@@ -1,6 +1,16 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
 export type UserRole = 'user' | 'porter' | 'admin';
+
+// Helper: Kiểm tra user có trong danh sách approved porters không
+const isApprovedPorter = (userId: string): boolean => {
+  try {
+    const approvedList = JSON.parse(localStorage.getItem('approvedPorters') || '[]');
+    return approvedList.some((p: { odId: string }) => p.odId === userId);
+  } catch {
+    return false;
+  }
+};
 
 export interface MockUser {
   id: string;
@@ -75,12 +85,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login(userId);
   };
 
+  // Kiểm tra porter: role là porter HOẶC đã được admin duyệt
+  const isPorter = useMemo(() => {
+    if (!currentUser) return false;
+    return currentUser.role === 'porter' || isApprovedPorter(currentUser.id);
+  }, [currentUser]);
+
   return (
     <AuthContext.Provider value={{
       currentUser,
       isLoggedIn: !!currentUser,
       isAdmin: currentUser?.role === 'admin',
-      isPorter: currentUser?.role === 'porter',
+      isPorter,
       login,
       logout,
       switchAccount,

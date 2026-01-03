@@ -73,7 +73,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 2,
     estimatedPrice: 2200000,
     description: 'Săn mây và check-in sống lưng khủng long nổi tiếng',
-    organizerId: 'current-user',
+    organizerId: 'porter-3',
   },
   {
     id: '4',
@@ -109,7 +109,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 0,
     estimatedPrice: 800000,
     description: 'Leo núi cùng gia đình, phù hợp người mới bắt đầu',
-    organizerId: 'current-user',
+    organizerId: 'porter-3',
   },
   {
     id: '6',
@@ -163,7 +163,7 @@ export const mockTrips: Trip[] = [
     portersNeeded: 3,
     estimatedPrice: 4200000,
     description: 'Cắm trại và chinh phục đỉnh Ky Quan San hùng vĩ',
-    organizerId: 'current-user',
+    organizerId: 'porter-3',
   },
 ];
 
@@ -229,7 +229,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     portersNeeded: 3,
     estimatedPrice: 3800000,
     description: 'Chinh phục đỉnh núi cao thứ 9 Việt Nam',
-    organizerId: 'current-user',
+    organizerId: 'porter-3',
     completedDate: '2025-12-21',
     hasReviewed: false,
   },

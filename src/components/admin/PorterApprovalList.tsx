@@ -1,7 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -14,18 +13,36 @@ import { RejectReasonModal } from './RejectReasonModal';
 import { useToast } from '@/hooks/use-toast';
 import { mockPorters, type Porter, type PorterStatus } from '@/data/mockPorters';
 
+const PORTER_APPLICATIONS_KEY = 'porterApplications';
+
+const getPorterApplications = (): Porter[] => {
+  const stored = localStorage.getItem(PORTER_APPLICATIONS_KEY);
+  if (stored) return JSON.parse(stored);
+  // Nếu chưa có, khởi tạo từ mockPorters
+  localStorage.setItem(PORTER_APPLICATIONS_KEY, JSON.stringify(mockPorters));
+  return mockPorters;
+};
+
+const savePorterApplications = (porters: Porter[]) => {
+  localStorage.setItem(PORTER_APPLICATIONS_KEY, JSON.stringify(porters));
+};
+
 export const PorterApprovalList = () => {
   const { toast } = useToast();
-  const [porters, setPorters] = useState<Porter[]>(mockPorters);
+  const [porters, setPorters] = useState<Porter[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PorterStatus | 'all'>('all');
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedPorter, setSelectedPorter] = useState<Porter | null>(null);
 
+  // Load từ localStorage khi mount
+  useEffect(() => {
+    setPorters(getPorterApplications());
+  }, []);
+
   const filteredPorters = useMemo(() => {
     let result = [...porters];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -36,12 +53,10 @@ export const PorterApprovalList = () => {
       );
     }
 
-    // Status filter
     if (statusFilter !== 'all') {
       result = result.filter((porter) => porter.status === statusFilter);
     }
 
-    // Sort by applied date (newest first)
     result.sort(
       (a, b) =>
         new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
@@ -53,15 +68,28 @@ export const PorterApprovalList = () => {
   const pendingCount = porters.filter((p) => p.status === 'pending').length;
 
   const handleApprove = (porterId: string) => {
-    setPorters((prev) =>
-      prev.map((p) =>
-        p.id === porterId ? { ...p, status: 'approved' as PorterStatus } : p
-      )
+    const updated = porters.map((p) =>
+      p.id === porterId ? { ...p, status: 'approved' as PorterStatus } : p
     );
-    const porter = porters.find((p) => p.id === porterId);
+    setPorters(updated);
+    savePorterApplications(updated);
+
+    // Cập nhật approved porters list
+    const approvedPorter = updated.find((p) => p.id === porterId);
+    if (approvedPorter) {
+      const approvedList = JSON.parse(localStorage.getItem('approvedPorters') || '[]');
+      approvedList.push({
+        odId: approvedPorter.id,
+        odName: approvedPorter.name,
+        email: approvedPorter.email,
+        approvedAt: new Date().toISOString(),
+      });
+      localStorage.setItem('approvedPorters', JSON.stringify(approvedList));
+    }
+
     toast({
       title: 'Đã duyệt Porter',
-      description: `${porter?.name} đã được duyệt thành công.`,
+      description: `${approvedPorter?.name} đã được duyệt thành công.`,
     });
   };
 
@@ -75,13 +103,14 @@ export const PorterApprovalList = () => {
 
   const handleRejectConfirm = (reason: string) => {
     if (selectedPorter) {
-      setPorters((prev) =>
-        prev.map((p) =>
-          p.id === selectedPorter.id
-            ? { ...p, status: 'rejected' as PorterStatus, rejectReason: reason }
-            : p
-        )
+      const updated = porters.map((p) =>
+        p.id === selectedPorter.id
+          ? { ...p, status: 'rejected' as PorterStatus, rejectReason: reason }
+          : p
       );
+      setPorters(updated);
+      savePorterApplications(updated);
+
       toast({
         title: 'Đã từ chối Porter',
         description: `Đã từ chối hồ sơ của ${selectedPorter.name}.`,

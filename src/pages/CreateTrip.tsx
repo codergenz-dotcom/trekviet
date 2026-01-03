@@ -7,7 +7,6 @@ const CreateTrip = () => {
   const navigate = useNavigate();
   const { isPorter, isLoggedIn } = useAuth();
 
-  // Redirect non-porters
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }

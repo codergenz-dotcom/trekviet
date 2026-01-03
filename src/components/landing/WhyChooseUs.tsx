@@ -48,7 +48,7 @@ export const WhyChooseUs = () => {
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -56,14 +56,14 @@ export const WhyChooseUs = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Tại sao chọn <span className="text-primary">BKTreking</span>?
+            Tại sao chọn <span className="text-primary">VietTrekking</span>?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Với hơn 10 năm kinh nghiệm, chúng tôi tự hào là đơn vị hàng đầu trong lĩnh vực trekking và du lịch mạo hiểm tại Việt Nam.
           </p>
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -71,13 +71,13 @@ export const WhyChooseUs = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {features.map((feature, index) => (
-            <motion.div 
-              key={index} 
+            <motion.div
+              key={index}
               variants={itemVariants}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
               className="group text-center p-6 bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}

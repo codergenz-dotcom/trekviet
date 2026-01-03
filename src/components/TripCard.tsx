@@ -63,9 +63,17 @@ export const TripCard = ({ trip, index }: TripCardProps) => {
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
         <div className="relative w-full md:w-64 h-48 md:h-auto shrink-0 overflow-hidden">
-          <div className="absolute inset-0 gradient-mountain flex items-center justify-center">
-            <Compass className="h-16 w-16 text-primary-foreground/30" />
-          </div>
+          {trip.image ? (
+            <img
+              src={trip.image}
+              alt={trip.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 gradient-mountain flex items-center justify-center">
+              <Compass className="h-16 w-16 text-primary-foreground/30" />
+            </div>
+          )}
           <div className="absolute top-3 left-3">
             <Badge
               variant="secondary"

@@ -58,7 +58,6 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
       reader.readAsDataURL(file);
     });
     
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
