@@ -18,7 +18,6 @@ const PORTER_APPLICATIONS_KEY = 'porterApplications';
 const getPorterApplications = (): Porter[] => {
   const stored = localStorage.getItem(PORTER_APPLICATIONS_KEY);
   if (stored) return JSON.parse(stored);
-  // Nếu chưa có, khởi tạo từ mockPorters
   localStorage.setItem(PORTER_APPLICATIONS_KEY, JSON.stringify(mockPorters));
   return mockPorters;
 };
@@ -35,7 +34,6 @@ export const PorterApprovalList = () => {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedPorter, setSelectedPorter] = useState<Porter | null>(null);
 
-  // Load từ localStorage khi mount
   useEffect(() => {
     setPorters(getPorterApplications());
   }, []);
@@ -74,7 +72,6 @@ export const PorterApprovalList = () => {
     setPorters(updated);
     savePorterApplications(updated);
 
-    // Cập nhật approved porters list
     const approvedPorter = updated.find((p) => p.id === porterId);
     if (approvedPorter) {
       const approvedList = JSON.parse(localStorage.getItem('approvedPorters') || '[]');

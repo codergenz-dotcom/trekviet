@@ -255,6 +255,22 @@ const TripDetail = () => {
     );
     setRegistrations(updated);
     saveRegistrations(id!, updated);
+
+    if (id) {
+      try {
+        const stored = localStorage.getItem('createdTrips');
+        if (stored) {
+          const trips = JSON.parse(stored);
+          const updatedTrips = trips.map((t: { id: string; participants?: number }) =>
+            t.id === id ? { ...t, participants: (t.participants || 0) + 1 } : t
+          );
+          localStorage.setItem('createdTrips', JSON.stringify(updatedTrips));
+        }
+      } catch {
+        console.error('Failed to update participants count');
+      }
+    }
+
     toast({
       title: "Đã duyệt",
       description: "Thành viên đã được duyệt tham gia.",

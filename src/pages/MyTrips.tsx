@@ -21,6 +21,29 @@ interface JoinedTrip extends Trip {
   registeredAt: string;
 }
 
+const parseCostString = (cost: string): number => {
+  if (!cost) return 0;
+  let cleaned = cost.toLowerCase().replace(/[^\d.,trđk]/g, '');
+
+  if (cleaned.includes('tr')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000000;
+  }
+
+  if (cleaned.includes('k')) {
+    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
+    return num * 1000;
+  }
+
+  cleaned = cleaned.replace(/,/g, '').replace('đ', '');
+  return parseFloat(cleaned) || 0;
+};
+
+const calculateEstimatedPrice = (includedCosts: { content: string; cost: string }[]): number => {
+  if (!includedCosts || !Array.isArray(includedCosts)) return 0;
+  return includedCosts.reduce((sum, item) => sum + parseCostString(item.cost), 0);
+};
+
 const getMyJoinedTrips = (userId: string): JoinedTrip[] => {
   try {
     const regStored = localStorage.getItem('tripRegistrations');
@@ -54,7 +77,7 @@ const getMyJoinedTrips = (userId: string): JoinedTrip[] => {
             leaders: 1,
             portersAvailable: 0,
             portersNeeded: 1,
-            estimatedPrice: created.estimatedPrice || 0,
+            estimatedPrice: created.estimatedPrice || calculateEstimatedPrice(created.includedCosts || []),
             description: '',
             organizerId: created.createdBy || '',
           } as Trip;
@@ -74,29 +97,6 @@ const getMyJoinedTrips = (userId: string): JoinedTrip[] => {
   } catch {
     return [];
   }
-};
-
-const parseCostString = (cost: string): number => {
-  if (!cost) return 0;
-  let cleaned = cost.toLowerCase().replace(/[^\d.,trđk]/g, '');
-
-  if (cleaned.includes('tr')) {
-    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
-    return num * 1000000;
-  }
-
-  if (cleaned.includes('k')) {
-    const num = parseFloat(cleaned.replace(/[^\d.]/g, ''));
-    return num * 1000;
-  }
-
-  cleaned = cleaned.replace(/,/g, '').replace('đ', '');
-  return parseFloat(cleaned) || 0;
-};
-
-const calculateEstimatedPrice = (includedCosts: { content: string; cost: string }[]): number => {
-  if (!includedCosts || !Array.isArray(includedCosts)) return 0;
-  return includedCosts.reduce((sum, item) => sum + parseCostString(item.cost), 0);
 };
 
 const getMyCreatedTrips = (userId: string): MyTrip[] => {

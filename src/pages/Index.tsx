@@ -127,8 +127,6 @@ const Index = () => {
   const filteredTrips = useMemo(() => {
     let result = [...mockTrips, ...createdTrips];
 
-    // Chỉ ẩn trip của chính mình nếu là porter (vì porter quản lý trip ở trang riêng)
-    // User thường vẫn thấy tất cả trip để tham gia
     if (isPorter && currentUser?.id) {
       result = result.filter((trip) => trip.organizerId !== currentUser.id);
     }

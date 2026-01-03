@@ -19,6 +19,7 @@ import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPorters from "./pages/admin/AdminPorters";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 const queryClient = new QueryClient();
 
@@ -43,13 +44,21 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/admin/porters" 
+              <Route
+                path="/admin/porters"
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminPorters />
                   </ProtectedRoute>
-                } 
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminUsers />
+                  </ProtectedRoute>
+                }
               />
               {/* Main app routes */}
               <Route
