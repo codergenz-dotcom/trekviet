@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, MoreVertical, Phone, Video, Users, User, Info, PanelRightClose } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Users, User, Info, PanelRightClose } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useAuth } from '@/contexts/AuthContext';
@@ -88,13 +88,6 @@ export function ChatRoom({ room, onBack, onToggleInfo, showInfoButton }: ChatRoo
         </div>
         
         <div className="flex items-center gap-1 shrink-0">
-          <Button variant="ghost" size="icon" className="hidden sm:flex hover:bg-primary/10">
-            <Phone className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden sm:flex hover:bg-primary/10">
-            <Video className="h-4 w-4" />
-          </Button>
-          
           {showInfoButton && (
             <Button 
               variant="ghost" 
@@ -113,15 +106,6 @@ export function ChatRoom({ room, onBack, onToggleInfo, showInfoButton }: ChatRoo
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem className="sm:hidden">
-                <Phone className="h-4 w-4 mr-2" />
-                Gọi thoại
-              </DropdownMenuItem>
-              <DropdownMenuItem className="sm:hidden">
-                <Video className="h-4 w-4 mr-2" />
-                Gọi video
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="sm:hidden" />
               <DropdownMenuItem>
                 <Info className="h-4 w-4 mr-2" />
                 Xem thông tin
