@@ -1,8 +1,9 @@
-import { useRef } from "react";
-import { Plus, X, ImagePlus } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { X, ImagePlus, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -28,11 +29,11 @@ interface BasicInfoTabProps {
 }
 
 const locations = [
-  "Tây Bắc",
-  "Đông Bắc", 
-  "Miền Trung",
-  "Tây Nguyên",
-  "Đông Nam Bộ",
+  { value: "Tây Bắc", difficulty: "hard" },
+  { value: "Đông Bắc", difficulty: "medium" },
+  { value: "Miền Trung", difficulty: "medium" },
+  { value: "Tây Nguyên", difficulty: "hard" },
+  { value: "Đông Nam Bộ", difficulty: "easy" },
 ];
 
 const difficulties = [
@@ -44,6 +45,15 @@ const difficulties = [
 
 export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-suggest difficulty when location changes
+  const handleLocationChange = (value: string) => {
+    const selectedLocation = locations.find((loc) => loc.value === value);
+    updateFormData({
+      location: value,
+      difficulty: selectedLocation?.difficulty || formData.difficulty,
+    });
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -88,15 +98,15 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
           <Label>Địa điểm:</Label>
           <Select
             value={formData.location}
-            onValueChange={(value) => updateFormData({ location: value })}
+            onValueChange={handleLocationChange}
           >
             <SelectTrigger className="bg-background">
               <SelectValue placeholder="Chọn địa điểm" />
             </SelectTrigger>
             <SelectContent className="bg-background">
               {locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
-                  {loc}
+                <SelectItem key={loc.value} value={loc.value}>
+                  {loc.value}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -121,6 +131,23 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
               ))}
             </SelectContent>
           </Select>
+          {formData.location && (
+            <p className="text-xs text-muted-foreground">
+              Gợi ý dựa trên địa điểm, có thể thay đổi
+            </p>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="description">Mô tả:</Label>
+          <Textarea
+            id="description"
+            placeholder="Mô tả chi tiết về chuyến đi..."
+            value={formData.description}
+            onChange={(e) => updateFormData({ description: e.target.value })}
+            rows={3}
+          />
         </div>
 
         {/* Departure date */}
@@ -181,6 +208,24 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
               />
             </PopoverContent>
           </Popover>
+        </div>
+
+        {/* Expected Porter Count */}
+        <div className="space-y-2">
+          <Label htmlFor="expectedPorterCount" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Số lượng Porter dự kiến:
+          </Label>
+          <Input
+            id="expectedPorterCount"
+            type="number"
+            min={1}
+            max={50}
+            placeholder="Nhập số lượng"
+            value={formData.expectedPorterCount}
+            onChange={(e) => updateFormData({ expectedPorterCount: parseInt(e.target.value) || 1 })}
+            className="w-32"
+          />
         </div>
 
         {/* Contact info */}

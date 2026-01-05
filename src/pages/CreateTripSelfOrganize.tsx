@@ -13,21 +13,23 @@ export interface TripFormData {
   name: string;
   location: string;
   difficulty: string;
+  description: string;
   departureDate: Date | undefined;
   registrationDeadline: Date | undefined;
   contactEmail: string;
   contactPhone: string;
+  expectedPorterCount: number;
   discussionLink: string;
   images: string[];
-  
+
   durationType: "multi-day" | "single-day";
   durationDays: number;
   schedule: { time: string; content: string }[];
-  
+
   includedCosts: { content: string; cost: string }[];
   additionalCosts: { content: string; cost: string }[];
   costNotes: string;
-  
+
   preparations: string[];
 }
 
@@ -57,10 +59,12 @@ const initialFormData: TripFormData = {
   name: "",
   location: "",
   difficulty: "",
+  description: "",
   departureDate: undefined,
   registrationDeadline: undefined,
   contactEmail: "",
   contactPhone: "",
+  expectedPorterCount: 1,
   discussionLink: "",
   images: [],
   durationType: "multi-day",
@@ -93,10 +97,12 @@ const CreateTripSelfOrganize = () => {
             name: tripToEdit.name || "",
             location: tripToEdit.location || "",
             difficulty: tripToEdit.difficulty || "",
+            description: tripToEdit.description || "",
             departureDate: tripToEdit.departureDate ? new Date(tripToEdit.departureDate) : undefined,
             registrationDeadline: tripToEdit.registrationDeadline ? new Date(tripToEdit.registrationDeadline) : undefined,
             contactEmail: tripToEdit.contactEmail || "",
             contactPhone: tripToEdit.contactPhone || "",
+            expectedPorterCount: tripToEdit.expectedPorterCount || 1,
             discussionLink: tripToEdit.discussionLink || "",
             images: tripToEdit.images || [],
             durationType: tripToEdit.durationType || "multi-day",

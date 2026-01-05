@@ -73,12 +73,35 @@ const ProfileSetup = () => {
       localStorage.setItem(`userProfile_${uid}`, JSON.stringify(userProfile));
       localStorage.setItem(`profileCompleted_${uid}`, 'true');
 
-      toast({
-        title: "Hoàn tất!",
-        description: "Hồ sơ của bạn đã được tạo thành công",
-      });
+      // Check if user is Porter - redirect to pending page
+      const userRole = localStorage.getItem(`userRole_${uid}`);
+      if (userRole === 'porter') {
+        // Add to pending porters list
+        const pendingPorters = JSON.parse(localStorage.getItem('pendingPorters') || '[]');
+        const newPorter = {
+          odId: uid,
+          name: profile.name,
+          email: profile.email,
+          phone: profile.phone,
+          driveLink: profile.driveLink,
+          registeredAt: new Date().toISOString(),
+          status: 'pending'
+        };
+        pendingPorters.push(newPorter);
+        localStorage.setItem('pendingPorters', JSON.stringify(pendingPorters));
 
-      navigate('/my-trips');
+        toast({
+          title: "Đăng ký thành công!",
+          description: "Hồ sơ Porter của bạn đang chờ được duyệt",
+        });
+        navigate('/register/pending');
+      } else {
+        toast({
+          title: "Hoàn tất!",
+          description: "Hồ sơ của bạn đã được tạo thành công",
+        });
+        navigate('/my-trips');
+      }
     } catch (error) {
       console.error('Error saving profile:', error);
       toast({

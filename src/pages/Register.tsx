@@ -41,29 +41,9 @@ const Register = () => {
         // Existing user - go to my-trips
         navigate("/my-trips");
       } else {
-        // New user - handle based on role
-        if (role === 'trekker') {
-          // Save role and redirect to profile setup
-          localStorage.setItem(`userRole_${uid}`, 'trekker');
-          navigate("/profile/setup");
-        } else {
-          // Porter - save to pending list and redirect to pending page
-          localStorage.setItem(`userRole_${uid}`, 'porter');
-
-          // Add to pending porters list
-          const pendingPorters = JSON.parse(localStorage.getItem('pendingPorters') || '[]');
-          const newPorter = {
-            odId: uid,
-            name: '', // Will be filled from Google
-            email: '',
-            registeredAt: new Date().toISOString(),
-            status: 'pending'
-          };
-          pendingPorters.push(newPorter);
-          localStorage.setItem('pendingPorters', JSON.stringify(pendingPorters));
-
-          navigate("/register/pending");
-        }
+        // New user - save role and redirect to profile setup
+        localStorage.setItem(`userRole_${uid}`, role);
+        navigate("/profile/setup");
       }
     } catch (err) {
       console.error("Register failed:", err);
