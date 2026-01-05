@@ -63,6 +63,86 @@ const difficultyLabels: Record<string, string> = {
   extreme: 'Cực khó',
 };
 
+// Mock data for demo
+const mockPendingTrips: PendingTrip[] = [
+  {
+    id: 'trip-pending-1',
+    name: 'Chinh phục Fansipan 2N1Đ',
+    location: 'Lào Cai',
+    difficulty: 'hard',
+    departureDate: '2026-02-15',
+    estimatedPrice: 2500000,
+    maxParticipants: 15,
+    description: 'Hành trình chinh phục nóc nhà Đông Dương với cung đường trekking cổ điển qua Y Tý. Trải nghiệm ngủ lều trên độ cao 2800m.',
+    organizerId: 'porter-1',
+    organizerName: 'Trần Văn Porter',
+    createdAt: '2026-01-03T10:00:00Z',
+    status: 'pending',
+    images: ['/fansipan.jpg'],
+  },
+  {
+    id: 'trip-pending-2',
+    name: 'Tà Xùa săn mây cuối tuần',
+    location: 'Sơn La',
+    difficulty: 'moderate',
+    departureDate: '2026-01-25',
+    estimatedPrice: 1800000,
+    maxParticipants: 20,
+    description: 'Tour săn mây Tà Xùa 2 ngày 1 đêm, check-in sống lưng khủng long, ngắm bình minh trên biển mây.',
+    organizerId: 'porter-2',
+    organizerName: 'Lê Minh Trekker',
+    createdAt: '2026-01-02T14:30:00Z',
+    status: 'pending',
+    images: ['/ta-xua.png'],
+  },
+  {
+    id: 'trip-pending-3',
+    name: 'Lảo Thẩn - Đỉnh núi thiêng',
+    location: 'Lào Cai',
+    difficulty: 'hard',
+    departureDate: '2026-02-20',
+    estimatedPrice: 2200000,
+    maxParticipants: 12,
+    description: 'Khám phá đỉnh Lảo Thẩn cao 2860m, một trong những đỉnh núi đẹp nhất vùng Tây Bắc với cung trekking hoang sơ.',
+    organizerId: 'porter-1',
+    organizerName: 'Trần Văn Porter',
+    createdAt: '2026-01-04T09:15:00Z',
+    status: 'pending',
+    images: ['/lao-than.jpg'],
+  },
+  {
+    id: 'trip-approved-1',
+    name: 'Núi Bà Đen - Tây Ninh',
+    location: 'Tây Ninh',
+    difficulty: 'easy',
+    departureDate: '2026-01-20',
+    estimatedPrice: 800000,
+    maxParticipants: 30,
+    description: 'Tour leo núi Bà Đen phù hợp cho người mới bắt đầu, có thể đi cáp treo hoặc trekking.',
+    organizerId: 'porter-3',
+    organizerName: 'Nguyễn Hải Mountain',
+    createdAt: '2025-12-28T08:00:00Z',
+    status: 'approved',
+    images: ['/trekking-ba-den-5-600x450.jpg'],
+  },
+  {
+    id: 'trip-rejected-1',
+    name: 'Putaleng mùa đông',
+    location: 'Lai Châu',
+    difficulty: 'extreme',
+    departureDate: '2026-01-10',
+    estimatedPrice: 3500000,
+    maxParticipants: 8,
+    description: 'Chinh phục đỉnh Putaleng trong điều kiện thời tiết khắc nghiệt.',
+    organizerId: 'porter-2',
+    organizerName: 'Lê Minh Trekker',
+    createdAt: '2025-12-25T16:00:00Z',
+    status: 'rejected',
+    rejectReason: 'Thời tiết mùa đông quá khắc nghiệt, cần đợi đến mùa xuân để đảm bảo an toàn cho người tham gia.',
+    images: ['/putaleng.png'],
+  },
+];
+
 const AdminTrips = () => {
   const [trips, setTrips] = useState<PendingTrip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<PendingTrip | null>(null);
@@ -79,9 +159,15 @@ const AdminTrips = () => {
   const loadTrips = () => {
     try {
       const storedTrips = JSON.parse(localStorage.getItem('pendingTrips') || '[]');
-      setTrips(storedTrips);
+      // Use mock data if localStorage is empty
+      if (storedTrips.length === 0) {
+        setTrips(mockPendingTrips);
+        localStorage.setItem('pendingTrips', JSON.stringify(mockPendingTrips));
+      } else {
+        setTrips(storedTrips);
+      }
     } catch {
-      setTrips([]);
+      setTrips(mockPendingTrips);
     }
   };
 
