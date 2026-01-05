@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save, Award, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Save, Award, CheckCircle, Clock, XCircle, Facebook, Instagram, Link2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,20 +9,60 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { usePorter } from '@/contexts/PorterContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const { porterStatus, isPorter, registerAsPorter } = usePorter();
+  const { porterStatus, registerAsPorter } = usePorter();
+  const { currentUser } = useAuth();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@email.com',
-    phone: '0901234567',
-    location: 'Hà Nội, Việt Nam',
-    bio: 'Yêu thích khám phá thiên nhiên và leo núi. Đã chinh phục nhiều đỉnh núi cao tại Việt Nam.',
+    name: '',
+    displayName: '',
+    email: '',
+    phone: '',
+    facebook: '',
+    instagram: '',
+    location: '',
+    bio: '',
     joinDate: '01/2024',
+    avatar: '',
+    // Porter fields
+    driveLink: '',
   });
+
+  // Update profile when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      const uid = currentUser.id || localStorage.getItem('firebase_uid') || '';
+      const savedProfile = localStorage.getItem(`userProfile_${uid}`);
+
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        setProfile(prev => ({
+          ...prev,
+          name: parsed.name || currentUser.name || '',
+          displayName: parsed.displayName || '',
+          email: parsed.email || currentUser.email || '',
+          phone: parsed.phone || '',
+          facebook: parsed.facebook || '',
+          instagram: parsed.instagram || '',
+          location: parsed.location || '',
+          bio: parsed.bio || '',
+          avatar: parsed.avatar || currentUser.avatar || '',
+          driveLink: parsed.driveLink || '',
+        }));
+      } else {
+        setProfile(prev => ({
+          ...prev,
+          name: currentUser.name || '',
+          email: currentUser.email || '',
+          avatar: currentUser.avatar || '',
+        }));
+      }
+    }
+  }, [currentUser]);
 
   const stats = [
     { label: 'Chuyến đi', value: 12 },
@@ -31,6 +71,12 @@ const Profile = () => {
   ];
 
   const handleSave = () => {
+    const uid = currentUser?.id || localStorage.getItem('firebase_uid') || '';
+    localStorage.setItem(`userProfile_${uid}`, JSON.stringify(profile));
+    toast({
+      title: "Đã lưu!",
+      description: "Thông tin hồ sơ đã được cập nhật.",
+    });
     setIsEditing(false);
   };
 
@@ -50,9 +96,9 @@ const Profile = () => {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative">
               <Avatar className="h-24 w-24 border-4 border-primary/20 shadow-lg">
-                <AvatarImage src="/placeholder.svg" alt={profile.name} />
+                <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} />
                 <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-                  {profile.name.split(' ').map(n => n[0]).join('')}
+                  {profile.name ? profile.name.split(' ').map(n => n[0]).join('') : 'U'}
                 </AvatarFallback>
               </Avatar>
               {isEditing && (
@@ -67,7 +113,7 @@ const Profile = () => {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-bold">{profile.name}</h1>
+                <h1 className="text-2xl font-bold">{profile.displayName || profile.name}</h1>
                 {porterStatus === 'approved' && (
                   <Badge className="bg-primary text-primary-foreground">
                     <Award className="h-3 w-3 mr-1" />
@@ -150,6 +196,23 @@ const Profile = () => {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="displayName">Tên gọi</Label>
+              {isEditing ? (
+                <Input
+                  id="displayName"
+                  value={profile.displayName}
+                  onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
+                  placeholder="Tên bạn muốn hiển thị"
+                />
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  {profile.displayName || <span className="text-muted-foreground italic">Chưa đặt</span>}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               {isEditing ? (
                 <Input
@@ -167,7 +230,12 @@ const Profile = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Số điện thoại</Label>
+              <Label htmlFor="phone" className="flex items-center gap-2">
+                Số điện thoại
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-normal">
+                  <Lock className="h-3 w-3" /> riêng tư
+                </span>
+              </Label>
               {isEditing ? (
                 <Input
                   id="phone"
@@ -177,7 +245,7 @@ const Profile = () => {
               ) : (
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  {profile.phone}
+                  {profile.phone || <span className="text-muted-foreground italic">Chưa cập nhật</span>}
                 </div>
               )}
             </div>
@@ -193,9 +261,62 @@ const Profile = () => {
               ) : (
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  {profile.location}
+                  {profile.location || <span className="text-muted-foreground italic">Chưa cập nhật</span>}
                 </div>
               )}
+            </div>
+
+            <Separator />
+
+            {/* Social Links */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Liên lạc</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="facebook" className="text-xs text-muted-foreground font-normal">Facebook</Label>
+                {isEditing ? (
+                  <Input
+                    id="facebook"
+                    value={profile.facebook}
+                    onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
+                    placeholder="https://facebook.com/username"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Facebook className="h-4 w-4 text-muted-foreground" />
+                    {profile.facebook ? (
+                      <a href={profile.facebook} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        {profile.facebook.replace(/https?:\/\/(www\.)?facebook\.com\/?/, '')}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground italic">Chưa cập nhật</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="instagram" className="text-xs text-muted-foreground font-normal">Instagram</Label>
+                {isEditing ? (
+                  <Input
+                    id="instagram"
+                    value={profile.instagram}
+                    onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                    placeholder="https://instagram.com/username"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Instagram className="h-4 w-4 text-muted-foreground" />
+                    {profile.instagram ? (
+                      <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        {profile.instagram.replace(/https?:\/\/(www\.)?instagram\.com\/?/, '')}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground italic">Chưa cập nhật</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -289,6 +410,45 @@ const Profile = () => {
                 <CheckCircle className="h-4 w-4" />
                 Đăng ký lại
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Porter Credentials - Only for approved porters */}
+      {porterStatus === 'approved' && (
+        <Card className="border-orange-200 dark:border-orange-900 bg-orange-50/50 dark:bg-orange-950/10">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Link2 className="h-5 w-5 text-orange-600" />
+              Tài liệu Porter
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Link Google Drive chứa các tài liệu chứng minh uy tín (chứng chỉ, giấy phép, ảnh hoạt động...)
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="driveLink">Link Google Drive</Label>
+              {isEditing ? (
+                <Input
+                  id="driveLink"
+                  value={profile.driveLink}
+                  onChange={(e) => setProfile({ ...profile, driveLink: e.target.value })}
+                  placeholder="https://drive.google.com/drive/folders/..."
+                />
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  <Link2 className="h-4 w-4 text-muted-foreground" />
+                  {profile.driveLink ? (
+                    <a href={profile.driveLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      Xem tài liệu
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground italic">Chưa cập nhật</span>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

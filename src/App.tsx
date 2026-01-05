@@ -12,6 +12,9 @@ import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProfileSetup from "./pages/ProfileSetup";
+import RegisterPending from "./pages/RegisterPending";
 import CreateTrip from "./pages/CreateTrip";
 import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 import TripDetail from "./pages/TripDetail";
@@ -33,6 +36,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile/setup" element={<ProfileSetup />} />
+              <Route path="/register/pending" element={<RegisterPending />} />
               {/* Landing page */}
               <Route path="/" element={<LandingPage />} />
               {/* Admin routes - protected */}

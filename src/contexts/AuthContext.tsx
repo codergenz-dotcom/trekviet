@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import { onAuthStateChanged, signInWithPopup, signOut, User as FirebaseUser } from 'firebase/auth';
+import { auth, googleProvider } from '@/lib/firebase';
 
 export type UserRole = 'user' | 'porter' | 'admin';
 
-// Helper: Kiểm tra user có trong danh sách approved porters không
 const isApprovedPorter = (userId: string): boolean => {
   try {
     const approvedList = JSON.parse(localStorage.getItem('approvedPorters') || '[]');
@@ -42,51 +43,95 @@ export const mockUsers: MockUser[] = [
   },
 ];
 
+const ADMIN_EMAILS = ['admin@viettrekking.com'];
+
 interface AuthContextType {
   currentUser: MockUser | null;
   isLoggedIn: boolean;
   isAdmin: boolean;
   isPorter: boolean;
+  loading: boolean;
   login: (userId: string) => void;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   switchAccount: (userId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const firebaseUserToMockUser = (firebaseUser: FirebaseUser): MockUser => {
+  const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email || '');
+  return {
+    id: firebaseUser.uid,
+    name: firebaseUser.displayName || 'Người dùng',
+    email: firebaseUser.email || '',
+    avatar: firebaseUser.photoURL || undefined,
+    role: isAdmin ? 'admin' : 'user',
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<MockUser | null>(() => {
-    const savedUserId = localStorage.getItem('currentUserId');
-    if (savedUserId) {
-      return mockUsers.find(u => u.id === savedUserId) || null;
-    }
-    return null;
-  });
+  const [currentUser, setCurrentUser] = useState<MockUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('currentUserId', currentUser.id);
-    } else {
-      localStorage.removeItem('currentUserId');
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Save firebase_uid for other components to use
+        localStorage.setItem('firebase_uid', firebaseUser.uid);
+        setCurrentUser(firebaseUserToMockUser(firebaseUser));
+      } else {
+        localStorage.removeItem('firebase_uid');
+        const savedUserId = localStorage.getItem('currentUserId');
+        if (savedUserId) {
+          const mockUser = mockUsers.find(u => u.id === savedUserId);
+          setCurrentUser(mockUser || null);
+        } else {
+          setCurrentUser(null);
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const loginWithGoogle = async () => {
+    try {
+      setLoading(true);
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-  }, [currentUser]);
+  };
 
   const login = (userId: string) => {
     const user = mockUsers.find(u => u.id === userId);
     if (user) {
       setCurrentUser(user);
+      localStorage.setItem('currentUserId', user.id);
     }
   };
 
-  const logout = () => {
-    setCurrentUser(null);
+  const logout = async () => {
+    try {
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+      localStorage.removeItem('currentUserId');
+      setCurrentUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const switchAccount = (userId: string) => {
     login(userId);
   };
 
-  // Kiểm tra porter: role là porter HOẶC đã được admin duyệt
   const isPorter = useMemo(() => {
     if (!currentUser) return false;
     return currentUser.role === 'porter' || isApprovedPorter(currentUser.id);
@@ -98,7 +143,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoggedIn: !!currentUser,
       isAdmin: currentUser?.role === 'admin',
       isPorter,
+      loading,
       login,
+      loginWithGoogle,
       logout,
       switchAccount,
     }}>

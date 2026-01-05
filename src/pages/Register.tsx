@@ -2,20 +2,72 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Backpack, Users } from "lucide-react";
 
-const Login = () => {
+type SelectedRole = 'trekker' | 'porter' | null;
+
+const Register = () => {
   const navigate = useNavigate();
   const { loginWithGoogle, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<SelectedRole>(null);
 
-  const handleGoogleLogin = async () => {
+  const handleRegisterClick = () => {
+    setShowRoleDialog(true);
+  };
+
+  const handleRoleSelect = async (role: 'trekker' | 'porter') => {
+    setSelectedRole(role);
+    setShowRoleDialog(false);
+
     try {
       setError(null);
       await loginWithGoogle();
-      navigate("/my-trips");
+
+      // Get user ID after login
+      const uid = localStorage.getItem('firebase_uid') || Date.now().toString();
+
+      // Check if user already completed profile
+      const profileCompleted = localStorage.getItem(`profileCompleted_${uid}`);
+
+      if (profileCompleted) {
+        // Existing user - go to my-trips
+        navigate("/my-trips");
+      } else {
+        // New user - handle based on role
+        if (role === 'trekker') {
+          // Save role and redirect to profile setup
+          localStorage.setItem(`userRole_${uid}`, 'trekker');
+          navigate("/profile/setup");
+        } else {
+          // Porter - save to pending list and redirect to pending page
+          localStorage.setItem(`userRole_${uid}`, 'porter');
+
+          // Add to pending porters list
+          const pendingPorters = JSON.parse(localStorage.getItem('pendingPorters') || '[]');
+          const newPorter = {
+            odId: uid,
+            name: '', // Will be filled from Google
+            email: '',
+            registeredAt: new Date().toISOString(),
+            status: 'pending'
+          };
+          pendingPorters.push(newPorter);
+          localStorage.setItem('pendingPorters', JSON.stringify(pendingPorters));
+
+          navigate("/register/pending");
+        }
+      }
     } catch (err) {
-      console.error("Login failed:", err);
-      setError("Đăng nhập thất bại. Vui lòng thử lại.");
+      console.error("Register failed:", err);
+      setError("Đăng ký thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -80,7 +132,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right side - Login form */}
+      {/* Right side - Register form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           {/* Mobile logo */}
@@ -102,9 +154,9 @@ const Login = () => {
           </div>
 
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground">Đăng nhập</h2>
+            <h2 className="text-3xl font-bold text-foreground">Đăng ký</h2>
             <p className="mt-2 text-muted-foreground">
-              Chào mừng bạn trở lại! Vui lòng đăng nhập để tiếp tục.
+              Tham gia cộng đồng trekking lớn nhất Việt Nam
             </p>
           </div>
 
@@ -115,12 +167,12 @@ const Login = () => {
             </div>
           )}
 
-          {/* Google login button */}
+          {/* Google register button */}
           <Button
             type="button"
             variant="outline"
             className="w-full h-14 text-base font-medium"
-            onClick={handleGoogleLogin}
+            onClick={handleRegisterClick}
             disabled={loading}
           >
             {loading ? (
@@ -145,20 +197,20 @@ const Login = () => {
                 />
               </svg>
             )}
-            {loading ? "Đang đăng nhập..." : "Đăng nhập với Google"}
+            {loading ? "Đang xử lý..." : "Đăng ký với Google"}
           </Button>
 
-          {/* Register link */}
+          {/* Login link */}
           <p className="text-center text-sm text-muted-foreground">
-            Chưa có tài khoản?{" "}
-            <Link to="/register" className="text-primary hover:underline font-medium">
-              Đăng ký
+            Đã có tài khoản?{" "}
+            <Link to="/login" className="text-primary hover:underline font-medium">
+              Đăng nhập
             </Link>
           </p>
 
           {/* Terms */}
           <p className="text-center text-sm text-muted-foreground">
-            Bằng việc đăng nhập, bạn đồng ý với{" "}
+            Bằng việc đăng ký, bạn đồng ý với{" "}
             <a href="#" className="text-primary hover:underline">
               Điều khoản sử dụng
             </a>{" "}
@@ -169,8 +221,52 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Role Selection Dialog */}
+      <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">
+              Bạn tham gia dưới tư cách là?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Trekker Option */}
+            <button
+              onClick={() => handleRoleSelect('trekker')}
+              className="flex items-center gap-4 p-4 rounded-lg border-2 border-muted hover:border-primary hover:bg-primary/5 transition-all text-left"
+            >
+              <div className="p-3 rounded-full bg-primary/10">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Người tham gia (Trekker)</h3>
+                <p className="text-sm text-muted-foreground">
+                  Tham gia các chuyến đi trekking
+                </p>
+              </div>
+            </button>
+
+            {/* Porter Option */}
+            <button
+              onClick={() => handleRoleSelect('porter')}
+              className="flex items-center gap-4 p-4 rounded-lg border-2 border-muted hover:border-primary hover:bg-primary/5 transition-all text-left"
+            >
+              <div className="p-3 rounded-full bg-orange-100">
+                <Backpack className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Người hỗ trợ (Porter)</h3>
+                <p className="text-sm text-muted-foreground">
+                  Tổ chức và dẫn đoàn trekking
+                </p>
+              </div>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default Login;
+export default Register;
