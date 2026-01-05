@@ -1,4 +1,4 @@
-import { mockUsers } from '@/contexts/AuthContext';
+import { mockAdminUsers } from '@/data/mockUsers';
 
 export interface ChatMessage {
   id: string;
@@ -194,5 +194,5 @@ export const mockMessages: Record<string, ChatMessage[]> = {
 
 // Helper to get user info
 export const getUserInfo = (userId: string) => {
-  return mockUsers.find(u => u.id === userId);
+  return mockAdminUsers.find(u => u.id === userId);
 };
