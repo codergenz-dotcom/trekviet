@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty, type TripType } from "@/data/mockTrips";
+import { mockTrips, mockCompletedTrips, difficultyLabels, type Trip, type Difficulty, type TripType, type CompletedTrip } from "@/data/mockTrips";
 import { CompletedTripCard } from "@/components/CompletedTripCard";
+import { ReviewDialog } from "@/components/ReviewDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 type TripStatus = "draft" | "pending" | "open" | "completed";
@@ -197,6 +198,9 @@ const MyTrips = () => {
   const [activeTab, setActiveTab] = useState(isPorter ? "created" : "joined");
   const [myTrips, setMyTrips] = useState<MyTrip[]>([]);
   const [joinedTrips, setJoinedTrips] = useState<JoinedTrip[]>([]);
+  const [completedTrips, setCompletedTrips] = useState<CompletedTrip[]>(mockCompletedTrips);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedTripForReview, setSelectedTripForReview] = useState<CompletedTrip | null>(null);
 
   useEffect(() => {
     if (currentUser?.id) {
@@ -216,14 +220,14 @@ const MyTrips = () => {
   }, [searchQuery, myTrips]);
 
   const filteredCompletedTrips = useMemo(() => {
-    if (!searchQuery) return mockCompletedTrips;
+    if (!searchQuery) return completedTrips;
     const query = searchQuery.toLowerCase();
-    return mockCompletedTrips.filter(
+    return completedTrips.filter(
       (trip) =>
         trip.name.toLowerCase().includes(query) ||
         trip.location.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, completedTrips]);
 
   const filteredJoinedTrips = useMemo(() => {
     if (!searchQuery) return joinedTrips;
@@ -236,7 +240,25 @@ const MyTrips = () => {
   }, [searchQuery, joinedTrips]);
 
   const handleReview = (tripId: string) => {
-    console.log("Opening review for trip:", tripId);
+    const trip = completedTrips.find(t => t.id === tripId);
+    if (trip) {
+      setSelectedTripForReview(trip);
+      setReviewDialogOpen(true);
+    }
+  };
+
+  const handleSubmitReview = (tripId: string, rating: number, feedback: string) => {
+    // Update the trip as reviewed
+    setCompletedTrips(prev => 
+      prev.map(trip => 
+        trip.id === tripId ? { ...trip, hasReviewed: true } : trip
+      )
+    );
+    
+    // Save review to localStorage for demo
+    const reviews = JSON.parse(localStorage.getItem('tripReviews') || '{}');
+    reviews[tripId] = { rating, feedback, reviewedAt: new Date().toISOString() };
+    localStorage.setItem('tripReviews', JSON.stringify(reviews));
   };
 
   return (
@@ -409,6 +431,15 @@ const MyTrips = () => {
           </div>
         </div>
       </main>
+
+      {/* Review Dialog */}
+      <ReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        tripName={selectedTripForReview?.name || ''}
+        tripId={selectedTripForReview?.id || ''}
+        onSubmit={handleSubmitReview}
+      />
     </div>
   );
 };
