@@ -31,7 +31,7 @@ export function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemProps) {
         isActive ? 'bg-primary/10' : 'hover:bg-muted'
       )}
     >
-      <div className="relative">
+      <div className="relative shrink-0">
         <Avatar className="h-12 w-12">
           <AvatarImage src={room.avatar} />
           <AvatarFallback className="bg-primary/10">
@@ -49,29 +49,29 @@ export function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemProps) {
         )}
       </div>
 
-      <div className="flex-1 min-w-0 overflow-hidden">
-        <div className="flex items-center justify-between gap-2">
-          <span className={cn('font-medium truncate flex-1 min-w-0', room.unreadCount > 0 && 'text-foreground')}>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className={cn('font-medium truncate', room.unreadCount > 0 && 'text-foreground')}>
             {room.name}
           </span>
           {room.lastMessage && (
-            <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">
+            <span className="text-xs text-muted-foreground shrink-0 ml-auto">
               {formatTime(room.lastMessage.timestamp)}
             </span>
           )}
         </div>
         
-        <div className="flex items-center justify-between gap-2 mt-0.5">
+        <div className="flex items-center gap-2 mt-0.5">
           {room.lastMessage && (
             <p className={cn(
-              'text-sm truncate flex-1 min-w-0',
+              'text-sm truncate',
               room.unreadCount > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'
             )}>
               {room.lastMessage.content}
             </p>
           )}
           {room.unreadCount > 0 && (
-            <Badge variant="default" className="h-5 min-w-[20px] px-1.5 shrink-0">
+            <Badge variant="default" className="h-5 min-w-[20px] px-1.5 shrink-0 ml-auto">
               {room.unreadCount}
             </Badge>
           )}
