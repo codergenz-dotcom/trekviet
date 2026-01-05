@@ -48,7 +48,7 @@ export const ScheduleTab = ({ formData, updateFormData }: ScheduleTabProps) => {
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="multi-day" id="multi-day" />
             <Label htmlFor="multi-day" className="font-normal cursor-pointer">
-              Nhiều ngày (2N1D, 3N2D...)
+              Nhiều ngày
             </Label>
           </div>
           <div className="flex items-center space-x-2">
@@ -58,6 +58,23 @@ export const ScheduleTab = ({ formData, updateFormData }: ScheduleTabProps) => {
             </Label>
           </div>
         </RadioGroup>
+
+        {/* Duration days input - only show when multi-day is selected */}
+        {formData.durationType === "multi-day" && (
+          <div className="flex items-center gap-3 mt-3 p-3 bg-muted/30 rounded-lg">
+            <Label htmlFor="durationDays" className="whitespace-nowrap">
+              Thời gian:
+            </Label>
+            <Input
+              id="durationDays"
+              type="text"
+              value={formData.durationDays}
+              onChange={(e) => updateFormData({ durationDays: e.target.value })}
+              className="w-32"
+              placeholder="VD: 2N1D, 3N2D..."
+            />
+          </div>
+        )}
       </div>
 
       {/* Detailed schedule */}

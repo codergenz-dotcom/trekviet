@@ -247,7 +247,7 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
         </div>
 
         {/* Discussion group link */}
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="discussionLink">Link nhóm thảo luận:</Label>
           <Input
             id="discussionLink"
@@ -255,7 +255,7 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
             value={formData.discussionLink}
             onChange={(e) => updateFormData({ discussionLink: e.target.value })}
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Right side - Image upload */}

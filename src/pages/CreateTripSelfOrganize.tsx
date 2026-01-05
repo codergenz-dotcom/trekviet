@@ -23,7 +23,7 @@ export interface TripFormData {
   images: string[];
 
   durationType: "multi-day" | "single-day";
-  durationDays: number;
+  durationDays: string;
   schedule: { time: string; content: string }[];
 
   includedCosts: { content: string; cost: string }[];
@@ -68,7 +68,7 @@ const initialFormData: TripFormData = {
   discussionLink: "",
   images: [],
   durationType: "multi-day",
-  durationDays: 2,
+  durationDays: "2N1D",
   schedule: [{ time: "", content: "" }],
   includedCosts: [{ content: "", cost: "" }],
   additionalCosts: [{ content: "", cost: "" }],
@@ -106,7 +106,7 @@ const CreateTripSelfOrganize = () => {
             discussionLink: tripToEdit.discussionLink || "",
             images: tripToEdit.images || [],
             durationType: tripToEdit.durationType || "multi-day",
-            durationDays: tripToEdit.durationDays || 2,
+            durationDays: tripToEdit.durationDays || "2N1D",
             schedule: tripToEdit.schedule || [{ time: "", content: "" }],
             includedCosts: tripToEdit.includedCosts || [{ content: "", cost: "" }],
             additionalCosts: tripToEdit.additionalCosts || [{ content: "", cost: "" }],
