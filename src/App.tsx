@@ -24,6 +24,7 @@ import Chat from "./pages/Chat";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPorters from "./pages/admin/AdminPorters";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminTrips from "./pages/admin/AdminTrips";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminUsers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trips"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminTrips />
                   </ProtectedRoute>
                 }
               />
