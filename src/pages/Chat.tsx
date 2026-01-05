@@ -1,3 +1,4 @@
+// Chat page component
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
@@ -31,11 +32,11 @@ export default function Chat() {
   const privateRooms = mockChatRooms.filter((r) => r.type === 'private');
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] bg-background overflow-hidden">
       {/* Sidebar - Chat List */}
       <div
         className={cn(
-          'w-full md:w-80 lg:w-[340px] xl:w-[380px] border-r flex flex-col bg-muted/30',
+          'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
           selectedRoom ? 'hidden md:flex' : 'flex'
         )}
       >
