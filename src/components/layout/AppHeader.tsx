@@ -1,4 +1,4 @@
-import { Bell, User, Shield } from 'lucide-react';
+import { Bell, User, Shield, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
@@ -36,6 +36,17 @@ export function AppHeader() {
             Admin
           </Button>
         )}
+
+        {/* Chat */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative h-9 w-9"
+          onClick={() => navigate('/chat')}
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
+        </Button>
 
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative h-9 w-9">
