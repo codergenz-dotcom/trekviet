@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import { X, ImagePlus, Users } from "lucide-react";
+import { useRef, useState } from "react";
+import { X, ImagePlus, Users, Check, ChevronsUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -28,12 +36,37 @@ interface BasicInfoTabProps {
   updateFormData: (updates: Partial<TripFormData>) => void;
 }
 
-const locations = [
-  { value: "Tây Bắc", difficulty: "hard" },
-  { value: "Đông Bắc", difficulty: "medium" },
-  { value: "Miền Trung", difficulty: "medium" },
-  { value: "Tây Nguyên", difficulty: "hard" },
-  { value: "Đông Nam Bộ", difficulty: "easy" },
+// Danh sách địa điểm trek phổ biến với độ khó gợi ý
+const trekLocations = [
+  // Tây Bắc
+  { value: "Fansipan - Lào Cai", difficulty: "hard" },
+  { value: "Tà Xùa - Sơn La", difficulty: "hard" },
+  { value: "Bạch Mộc Lương Tử - Lào Cai", difficulty: "expert" },
+  { value: "Lảo Thẩn - Lào Cai", difficulty: "hard" },
+  { value: "Nhìu Cồ San - Lào Cai", difficulty: "expert" },
+  { value: "Ky Quan San - Lào Cai", difficulty: "expert" },
+  { value: "Tà Chì Nhù - Yên Bái", difficulty: "hard" },
+  { value: "Lùng Cúng - Yên Bái", difficulty: "hard" },
+  { value: "Mù Cang Chải - Yên Bái", difficulty: "medium" },
+  { value: "Pù Luông - Thanh Hóa", difficulty: "medium" },
+  // Đông Bắc
+  { value: "Mẫu Sơn - Lạng Sơn", difficulty: "medium" },
+  { value: "Phia Oắc - Cao Bằng", difficulty: "hard" },
+  { value: "Đỉnh Lũng Cú - Hà Giang", difficulty: "medium" },
+  { value: "Hoàng Su Phì - Hà Giang", difficulty: "hard" },
+  // Miền Trung
+  { value: "Tà Năng - Phan Dũng", difficulty: "hard" },
+  { value: "Sơn Đoòng - Quảng Bình", difficulty: "expert" },
+  { value: "Hang Én - Quảng Bình", difficulty: "hard" },
+  { value: "Bạch Mã - Huế", difficulty: "medium" },
+  // Tây Nguyên
+  { value: "Ngọc Linh - Kon Tum", difficulty: "expert" },
+  { value: "Chư Yang Sin - Đắk Lắk", difficulty: "hard" },
+  { value: "Langbiang - Lâm Đồng", difficulty: "easy" },
+  { value: "Bidoup - Lâm Đồng", difficulty: "medium" },
+  // Nam Bộ
+  { value: "Núi Bà Đen - Tây Ninh", difficulty: "easy" },
+  { value: "Núi Chứa Chan - Đồng Nai", difficulty: "easy" },
 ];
 
 const difficulties = [
@@ -45,14 +78,26 @@ const difficulties = [
 
 export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [locationSearch, setLocationSearch] = useState("");
 
   // Auto-suggest difficulty when location changes
   const handleLocationChange = (value: string) => {
-    const selectedLocation = locations.find((loc) => loc.value === value);
+    const selectedLocation = trekLocations.find((loc) => loc.value === value);
     updateFormData({
       location: value,
       difficulty: selectedLocation?.difficulty || formData.difficulty,
     });
+    setLocationOpen(false);
+  };
+
+  // Cho phép nhập địa điểm tự do khi không tìm thấy
+  const handleCustomLocation = () => {
+    if (locationSearch.trim()) {
+      updateFormData({ location: locationSearch.trim() });
+      setLocationOpen(false);
+      setLocationSearch("");
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,24 +138,63 @@ export const BasicInfoTab = ({ formData, updateFormData }: BasicInfoTabProps) =>
           />
         </div>
 
-        {/* Location */}
+        {/* Location - Combobox cho phép chọn hoặc nhập tự do */}
         <div className="space-y-2">
           <Label>Địa điểm:</Label>
-          <Select
-            value={formData.location}
-            onValueChange={handleLocationChange}
-          >
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="Chọn địa điểm" />
-            </SelectTrigger>
-            <SelectContent className="bg-background">
-              {locations.map((loc) => (
-                <SelectItem key={loc.value} value={loc.value}>
-                  {loc.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={locationOpen} onOpenChange={setLocationOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={locationOpen}
+                className="w-full justify-between bg-background font-normal"
+              >
+                {formData.location || "Chọn hoặc nhập địa điểm..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0 bg-background" align="start">
+              <Command>
+                <CommandInput
+                  placeholder="Tìm địa điểm trek..."
+                  value={locationSearch}
+                  onValueChange={setLocationSearch}
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    <div className="py-2 px-3 text-sm">
+                      <p className="text-muted-foreground mb-2">Không tìm thấy "{locationSearch}"</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCustomLocation}
+                        className="w-full"
+                      >
+                        Thêm "{locationSearch}" làm địa điểm mới
+                      </Button>
+                    </div>
+                  </CommandEmpty>
+                  <CommandGroup heading="Địa điểm phổ biến">
+                    {trekLocations.map((loc) => (
+                      <CommandItem
+                        key={loc.value}
+                        value={loc.value}
+                        onSelect={() => handleLocationChange(loc.value)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            formData.location === loc.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {loc.value}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Difficulty */}
