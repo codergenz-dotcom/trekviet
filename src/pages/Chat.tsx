@@ -36,7 +36,7 @@ export default function Chat() {
       {/* Sidebar - Chat List */}
       <div
         className={cn(
-          'w-full md:w-80 lg:w-[340px] xl:w-[380px] border-r flex flex-col bg-muted/30 shrink-0 overflow-hidden',
+          'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
           selectedRoom ? 'hidden md:flex' : 'flex'
         )}
       >
