@@ -49,13 +49,13 @@ export function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemProps) {
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <div className="flex items-center justify-between gap-2">
-          <span className={cn('font-medium truncate', room.unreadCount > 0 && 'text-foreground')}>
+          <span className={cn('font-medium truncate flex-1 min-w-0', room.unreadCount > 0 && 'text-foreground')}>
             {room.name}
           </span>
           {room.lastMessage && (
-            <span className="text-xs text-muted-foreground shrink-0">
+            <span className="text-xs text-muted-foreground shrink-0 whitespace-nowrap">
               {formatTime(room.lastMessage.timestamp)}
             </span>
           )}
@@ -64,7 +64,7 @@ export function ChatRoomItem({ room, isActive, onClick }: ChatRoomItemProps) {
         <div className="flex items-center justify-between gap-2 mt-0.5">
           {room.lastMessage && (
             <p className={cn(
-              'text-sm truncate',
+              'text-sm truncate flex-1 min-w-0',
               room.unreadCount > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'
             )}>
               {room.lastMessage.content}
