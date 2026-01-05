@@ -610,8 +610,9 @@ const AdminTrips = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                {/* Tab: Thông tin cơ bản */}
-                <TabsContent value="info" className="space-y-4 mt-4">
+                <div className="h-[400px] overflow-y-auto mt-4">
+                  {/* Tab: Thông tin cơ bản */}
+                  <TabsContent value="info" className="space-y-4 mt-0">
                   {selectedTrip.images && selectedTrip.images.length > 0 && (
                     <div className="aspect-video rounded-lg overflow-hidden bg-muted">
                       <img
@@ -735,7 +736,7 @@ const AdminTrips = () => {
                 </TabsContent>
 
                 {/* Tab: Lịch trình */}
-                <TabsContent value="schedule" className="space-y-4 mt-4">
+                <TabsContent value="schedule" className="space-y-4 mt-0">
                   {selectedTrip.schedule && selectedTrip.schedule.length > 0 ? (
                     <div className="space-y-4">
                       {selectedTrip.schedule.map((day, index) => (
@@ -766,7 +767,7 @@ const AdminTrips = () => {
                 </TabsContent>
 
                 {/* Tab: Dịch vụ */}
-                <TabsContent value="services" className="space-y-4 mt-4">
+                <TabsContent value="services" className="space-y-4 mt-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Included Services */}
                     <div className="p-4 rounded-lg border bg-green-50/50">
@@ -830,7 +831,7 @@ const AdminTrips = () => {
                 </TabsContent>
 
                 {/* Tab: Chi phí */}
-                <TabsContent value="costs" className="space-y-4 mt-4">
+                <TabsContent value="costs" className="space-y-4 mt-0">
                   {selectedTrip.costs && selectedTrip.costs.length > 0 ? (
                     <>
                       <Table>
@@ -876,6 +877,7 @@ const AdminTrips = () => {
                     </div>
                   )}
                 </TabsContent>
+                </div>
               </Tabs>
 
               <DialogFooter className="mt-6">
