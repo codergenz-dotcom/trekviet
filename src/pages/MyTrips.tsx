@@ -199,7 +199,7 @@ const MyTrips = () => {
   const [activeTab, setActiveTab] = useState(isPorter ? "created" : "joined");
   const [myTrips, setMyTrips] = useState<MyTrip[]>([]);
   const [joinedTrips, setJoinedTrips] = useState<JoinedTrip[]>([]);
-  const [completedTrips, setCompletedTrips] = useState<CompletedTrip[]>(mockCompletedTrips);
+  const [completedTrips, setCompletedTrips] = useState<CompletedTrip[]>([]);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedTripForReview, setSelectedTripForReview] = useState<CompletedTrip | null>(null);
 
@@ -207,6 +207,11 @@ const MyTrips = () => {
     if (currentUser?.id) {
       setMyTrips(getMyCreatedTrips(currentUser.id));
       setJoinedTrips(getMyJoinedTrips(currentUser.id));
+      // Filter completed trips by participantId
+      const userCompletedTrips = mockCompletedTrips.filter(
+        trip => trip.participantId === currentUser.id
+      );
+      setCompletedTrips(userCompletedTrips);
     }
   }, [currentUser?.id]);
 
