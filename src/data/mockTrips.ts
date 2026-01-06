@@ -8,6 +8,7 @@ export interface Trip {
   image: string;
   difficulty: Difficulty;
   departureDate: string;
+  registrationDeadline: string;
   duration: string;
   tripType: TripType;
   spotsRemaining: number;
@@ -28,6 +29,7 @@ export const mockTrips: Trip[] = [
     image: '/samu-ubo.jpeg',
     difficulty: 'medium',
     departureDate: '2026-01-15',
+    registrationDeadline: '2026-01-12',
     duration: '2 ngày 1 đêm',
     tripType: 'trekking',
     spotsRemaining: 7,
@@ -46,6 +48,7 @@ export const mockTrips: Trip[] = [
     image: '/fansipan.jpg',
     difficulty: 'hard',
     departureDate: '2026-01-18',
+    registrationDeadline: '2026-01-15',
     duration: '2 ngày 1 đêm',
     tripType: 'alpine',
     spotsRemaining: 3,
@@ -64,6 +67,7 @@ export const mockTrips: Trip[] = [
     image: '/ta-xua.png',
     difficulty: 'medium',
     departureDate: '2026-01-20',
+    registrationDeadline: '2026-01-17',
     duration: '2 ngày 1 đêm',
     tripType: 'trekking',
     spotsRemaining: 10,
@@ -82,6 +86,7 @@ export const mockTrips: Trip[] = [
     image: '/back-moc-luong-tu.jpg',
     difficulty: 'hard',
     departureDate: '2026-01-22',
+    registrationDeadline: '2026-01-19',
     duration: '3 ngày 2 đêm',
     tripType: 'alpine',
     spotsRemaining: 5,
@@ -100,6 +105,7 @@ export const mockTrips: Trip[] = [
     image: '/trekking-ba-den-5-600x450.jpg',
     difficulty: 'easy',
     departureDate: '2026-01-12',
+    registrationDeadline: '2025-12-30',
     duration: '1 ngày',
     tripType: 'hiking',
     spotsRemaining: 15,
@@ -118,6 +124,7 @@ export const mockTrips: Trip[] = [
     image: '/putaleng.png',
     difficulty: 'extreme',
     departureDate: '2026-02-01',
+    registrationDeadline: '2026-01-29',
     duration: '3 ngày 2 đêm',
     tripType: 'alpine',
     spotsRemaining: 2,
@@ -136,6 +143,7 @@ export const mockTrips: Trip[] = [
     image: '/lao-than.jpg',
     difficulty: 'medium',
     departureDate: '2026-01-25',
+    registrationDeadline: '2026-01-22',
     duration: '2 ngày 1 đêm',
     tripType: 'trekking',
     spotsRemaining: 8,
@@ -154,6 +162,7 @@ export const mockTrips: Trip[] = [
     image: '/ky-quan-san.jpg',
     difficulty: 'hard',
     departureDate: '2026-02-05',
+    registrationDeadline: '2026-02-02',
     duration: '3 ngày 2 đêm',
     tripType: 'camping',
     spotsRemaining: 6,
@@ -180,6 +189,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     image: '',
     difficulty: 'hard',
     departureDate: '2025-11-15',
+    registrationDeadline: '2025-11-12',
     duration: '3 ngày 2 đêm',
     tripType: 'trekking',
     spotsRemaining: 0,
@@ -200,6 +210,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     image: '',
     difficulty: 'easy',
     departureDate: '2025-12-01',
+    registrationDeadline: '2025-11-28',
     duration: '1 ngày',
     tripType: 'hiking',
     spotsRemaining: 0,
@@ -220,6 +231,7 @@ export const mockCompletedTrips: CompletedTrip[] = [
     image: '',
     difficulty: 'hard',
     departureDate: '2025-12-20',
+    registrationDeadline: '2025-12-17',
     duration: '2 ngày 1 đêm',
     tripType: 'alpine',
     spotsRemaining: 0,

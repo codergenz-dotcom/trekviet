@@ -93,6 +93,12 @@ const convertToTrip = (created: CreatedTrip): Trip => {
         : new Date(created.departureDate).toISOString().split('T')[0])
     : new Date().toISOString().split('T')[0];
 
+  const registrationDeadline = created.registrationDeadline
+    ? (typeof created.registrationDeadline === 'string'
+        ? created.registrationDeadline
+        : new Date(created.registrationDeadline).toISOString().split('T')[0])
+    : departureDate;
+
   return {
     id: created.id,
     name: created.name,
@@ -100,6 +106,7 @@ const convertToTrip = (created: CreatedTrip): Trip => {
     image: created.image || created.images?.[0] || '',
     difficulty: (created.difficulty || 'medium') as Difficulty,
     departureDate,
+    registrationDeadline,
     duration: created.durationType === 'single-day' ? '1 ngày' : `${created.durationDays || 2} ngày`,
     tripType: 'trekking' as TripType,
     spotsRemaining: (created.maxParticipants || 20) - (created.participants || 0),
@@ -201,6 +208,8 @@ const TripDetail = () => {
   const trip: Trip | null = mockTrip || (createdTrip ? convertToTrip(createdTrip) : null);
 
   const isOrganizer = trip?.organizerId === currentUser?.id;
+  
+  const isRegistrationClosed = trip ? new Date(trip.registrationDeadline) < new Date() : false;
 
   if (!trip) {
     return (
@@ -398,7 +407,12 @@ const TripDetail = () => {
                         <Calendar className="h-5 w-5 text-primary" />
                         <span className="text-foreground">
                           <span className="text-muted-foreground">Thời hạn đăng ký:</span>{" "}
-                          Trước 3 ngày khởi hành
+                          {formatDate(trip.registrationDeadline)}
+                          {isRegistrationClosed && (
+                            <Badge variant="destructive" className="ml-2">
+                              Đã hết hạn
+                            </Badge>
+                          )}
                         </span>
                       </div>
 
@@ -507,6 +521,18 @@ const TripDetail = () => {
                         </div>
                         <p className="text-xs text-muted-foreground text-center">
                           Bạn đã đăng ký chuyến đi này
+                        </p>
+                      </div>
+                    ) : isRegistrationClosed ? (
+                      <div className="space-y-2">
+                        <Button
+                          disabled
+                          className="w-full h-12 text-base font-semibold"
+                        >
+                          Đã hết hạn đăng ký
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center">
+                          Thời hạn đăng ký đã kết thúc vào {formatDate(trip.registrationDeadline)}
                         </p>
                       </div>
                     ) : (
