@@ -49,8 +49,8 @@ interface Review {
   isVisible: boolean;
 }
 
-// Mock data
-const mockReviews: Review[] = [
+// Default mock data
+const defaultMockReviews: Review[] = [
   {
     id: 'review-1',
     tripId: 'trip-1',
@@ -87,46 +87,22 @@ const mockReviews: Review[] = [
     createdAt: '2026-01-01T16:45:00Z',
     isVisible: true,
   },
-  {
-    id: 'review-4',
-    tripId: 'trip-3',
-    tripName: 'Núi Bà Đen - Tây Ninh',
-    userId: 'user-4',
-    userName: 'Phạm Hoàng Dũng',
-    userAvatar: '',
-    rating: 3,
-    feedback: 'Chuyến đi ổn nhưng đông người quá. Nên tổ chức nhóm nhỏ hơn để trải nghiệm tốt hơn.',
-    createdAt: '2025-12-28T11:20:00Z',
-    isVisible: true,
-  },
-  {
-    id: 'review-5',
-    tripId: 'trip-4',
-    tripName: 'Lảo Thẩn - Đỉnh núi thiêng',
-    userId: 'user-5',
-    userName: 'Hoàng Thị Em',
-    userAvatar: '',
-    rating: 5,
-    feedback: 'Cung đường hoang sơ và đẹp lắm! Đêm ngủ trên núi ngắm sao là kỷ niệm không thể quên. Cảm ơn team đã tổ chức chu đáo.',
-    createdAt: '2025-12-25T08:00:00Z',
-    isVisible: true,
-  },
-  {
-    id: 'review-6',
-    tripId: 'trip-2',
-    tripName: 'Tà Xùa săn mây cuối tuần',
-    userId: 'user-6',
-    userName: 'Vũ Đức Phong',
-    userAvatar: '',
-    rating: 2,
-    feedback: 'Thời tiết xấu không thấy mây, hơi thất vọng. Tuy nhiên đây là yếu tố không kiểm soát được.',
-    createdAt: '2025-12-20T13:30:00Z',
-    isVisible: false,
-  },
 ];
 
+const getStoredReviews = (): Review[] => {
+  try {
+    const stored = localStorage.getItem('tripReviews');
+    if (!stored) return defaultMockReviews;
+    const userReviews = JSON.parse(stored);
+    // Combine default mock with user-created reviews
+    return [...defaultMockReviews, ...userReviews];
+  } catch {
+    return defaultMockReviews;
+  }
+};
+
 const AdminReviews = () => {
-  const [reviews, setReviews] = useState<Review[]>(mockReviews);
+  const [reviews, setReviews] = useState<Review[]>(getStoredReviews());
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle, Check, X, Users, MessageCircle } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, CheckCircle, Check, X, Users, MessageCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -154,6 +154,30 @@ const saveRegistrations = (tripId: string, registrations: Registration[]) => {
   }
 };
 
+interface TripReview {
+  id: string;
+  tripId: string;
+  tripName: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  feedback: string;
+  createdAt: string;
+  isVisible: boolean;
+}
+
+const getReviewsByTripId = (tripId: string): TripReview[] => {
+  try {
+    const stored = localStorage.getItem('tripReviews');
+    if (!stored) return [];
+    const reviews = JSON.parse(stored);
+    return reviews.filter((r: TripReview) => r.tripId === tripId);
+  } catch {
+    return [];
+  }
+};
+
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -202,6 +226,8 @@ const TripDetail = () => {
       setRegistrations(storedRegs);
     }
   }, [id]);
+
+  const tripReviews = id ? getReviewsByTripId(id) : [];
 
   const mockTrip = mockTrips.find((t) => t.id === id);
   const createdTrip = id ? getCreatedTripById(id) : null;
@@ -326,7 +352,7 @@ const TripDetail = () => {
         <div className="border border-border rounded-xl bg-card overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b border-border px-6 pt-4 overflow-x-auto">
-              <TabsList className={`w-full grid ${isOrganizer ? "grid-cols-5" : "grid-cols-4"} bg-transparent h-auto p-0 gap-0 min-w-max`}>
+              <TabsList className={`w-full grid ${isOrganizer ? "grid-cols-6" : "grid-cols-4"} bg-transparent h-auto p-0 gap-0 min-w-max`}>
                 <TabsTrigger
                   value="basic-info"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
@@ -363,6 +389,15 @@ const TripDetail = () => {
                         {pendingRegistrations.length}
                       </Badge>
                     )}
+                  </TabsTrigger>
+                )}
+                {isOrganizer && (
+                  <TabsTrigger
+                    value="reviews"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3 whitespace-nowrap"
+                  >
+                    <Star className="h-4 w-4 mr-1" />
+                    Đánh giá
                   </TabsTrigger>
                 )}
               </TabsList>
@@ -819,6 +854,82 @@ const TripDetail = () => {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              )}
+
+              {/* Reviews Tab - Only for organizers */}
+              {isOrganizer && (
+                <TabsContent value="reviews" className="mt-0">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2">
+                        Đánh giá từ người tham gia
+                        <Badge variant="secondary">{tripReviews.length}</Badge>
+                      </h3>
+                      {tripReviews.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => {
+                              const avgRating = tripReviews.reduce((sum, r) => sum + r.rating, 0) / tripReviews.length;
+                              return (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${star <= avgRating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                                />
+                              );
+                            })}
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {(tripReviews.reduce((sum, r) => sum + r.rating, 0) / tripReviews.length).toFixed(1)}/5
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {tripReviews.length > 0 ? (
+                      <div className="space-y-4">
+                        {tripReviews.map((review) => (
+                          <div
+                            key={review.id}
+                            className="p-4 border border-border rounded-lg bg-muted/30"
+                          >
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {review.userName.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="font-medium text-foreground">{review.userName}</p>
+                                  <span className="text-xs text-muted-foreground">
+                                    {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                                  </span>
+                                </div>
+                                <div className="flex mt-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`h-4 w-4 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="mt-2 text-sm text-muted-foreground">{review.feedback}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Star className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+                        <p className="text-muted-foreground">Chưa có đánh giá nào cho chuyến đi này.</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Đánh giá sẽ xuất hiện sau khi chuyến đi hoàn thành.
+                        </p>
                       </div>
                     )}
                   </div>
