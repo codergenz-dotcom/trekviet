@@ -23,6 +23,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { mockTrips, difficultyLabels, tripTypeLabels, type Trip, type Difficulty, type TripType } from "@/data/mockTrips";
+import { mockAdminUsers } from "@/data/mockUsers";
 import { useAuth } from "@/contexts/AuthContext";
 
 type RegistrationStatus = "pending" | "approved" | "rejected";
@@ -431,6 +432,30 @@ const TripDetail = () => {
                           {trip.portersAvailable}/{trip.portersNeeded} người
                         </span>
                       </div>
+
+                      {/* Organizer Info */}
+                      {(() => {
+                        const organizer = mockAdminUsers.find(u => u.id === trip.organizerId);
+                        return organizer ? (
+                          <div className="pt-4 border-t border-border">
+                            <h3 className="font-medium text-foreground mb-3">Người tổ chức:</h3>
+                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                  {organizer.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-foreground truncate">{organizer.name}</p>
+                                <p className="text-sm text-muted-foreground truncate">{organizer.email}</p>
+                              </div>
+                              <Badge variant="secondary" className="shrink-0">
+                                {organizer.role === 'porter' ? 'Porter' : organizer.role === 'admin' ? 'Admin' : 'User'}
+                              </Badge>
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
 
                     <div className="pt-4 border-t border-border space-y-3">
