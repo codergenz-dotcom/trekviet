@@ -20,6 +20,7 @@ export default function Chat() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'group' | 'private'>('all');
   const [showInfo, setShowInfo] = useState(false);
+  const [isSingleRoomMode, setIsSingleRoomMode] = useState(false);
 
   // Auto-select room based on URL params
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function Chat() {
       if (room) {
         setSelectedRoom(room);
         setActiveTab('group');
+        setIsSingleRoomMode(true); // Hide sidebar when coming from trip discussion
       }
     } else if (roomId) {
       const room = mockChatRooms.find(r => r.id === roomId);
@@ -55,13 +57,14 @@ export default function Chat() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] bg-background overflow-hidden">
-      {/* Sidebar - Chat List */}
-      <div
-        className={cn(
-          'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
-          selectedRoom ? 'hidden md:flex' : 'flex'
-        )}
-      >
+      {/* Sidebar - Chat List - Hidden in single room mode */}
+      {!isSingleRoomMode && (
+        <div
+          className={cn(
+            'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
+            selectedRoom ? 'hidden md:flex' : 'flex'
+          )}
+        >
         {/* Header */}
         <div className="p-4 border-b bg-background space-y-3">
           <div className="flex items-center justify-between">
@@ -133,7 +136,8 @@ export default function Chat() {
             </div>
           </ScrollArea>
         </Tabs>
-      </div>
+        </div>
+      )}
 
       {/* Main Chat Area */}
       <div className={cn('flex-1 flex flex-col', !selectedRoom ? 'hidden md:flex' : 'flex')}>

@@ -85,68 +85,89 @@ export const getChatRoomByTripId = (tripId: string): ChatRoom | undefined => {
   return mockChatRooms.find(room => room.tripId === tripId);
 };
 
+// Generate mock messages for trip chat rooms
+const generateTripMessages = (): Record<string, ChatMessage[]> => {
+  const messages: Record<string, ChatMessage[]> = {};
+  
+  mockTrips.forEach((trip) => {
+    const roomId = `trip-chat-${trip.id}`;
+    const organizer = mockAdminUsers.find(u => u.id === trip.organizerId);
+    const organizerName = organizer?.name || 'Porter';
+    
+    messages[roomId] = [
+      {
+        id: `msg-${roomId}-1`,
+        senderId: 'system',
+        senderName: 'Hệ thống',
+        content: 'Nhóm thảo luận đã được tạo',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+        type: 'system',
+      },
+      {
+        id: `msg-${roomId}-2`,
+        senderId: trip.organizerId,
+        senderName: organizerName,
+        content: `Chào mừng mọi người đến với chuyến đi ${trip.name}! 🎉`,
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-3`,
+        senderId: 'user-1',
+        senderName: 'Nguyễn Văn A',
+        content: 'Chào mọi người! Em rất mong chờ chuyến đi này',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-4`,
+        senderId: trip.organizerId,
+        senderName: organizerName,
+        content: 'Mọi người nhớ chuẩn bị đầy đủ đồ dùng cá nhân, giày leo núi và áo ấm nhé!',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 20),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-5`,
+        senderId: 'user-2',
+        senderName: 'Trần Thị B',
+        content: 'Dạ em đã chuẩn bị xong rồi ạ. Có cần mang thêm gì không anh?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 15),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-6`,
+        senderId: trip.organizerId,
+        senderName: organizerName,
+        content: 'Nhớ mang theo đèn pin, đồ ăn nhẹ và nước uống đủ dùng nha',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 10),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-7`,
+        senderId: 'user-1',
+        senderName: 'Nguyễn Văn A',
+        content: 'Thời tiết ngày đi có đẹp không anh?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
+        type: 'text',
+      },
+      {
+        id: `msg-${roomId}-8`,
+        senderId: trip.organizerId,
+        senderName: organizerName,
+        content: 'Theo dự báo thì thời tiết khá đẹp, trời nắng nhẹ. Nhưng mọi người vẫn nên mang áo mưa phòng trường hợp thời tiết thay đổi nhé!',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+        type: 'text',
+      },
+    ];
+  });
+  
+  return messages;
+};
+
 // Mock messages for each room
 export const mockMessages: Record<string, ChatMessage[]> = {
-  'group-1': [
-    {
-      id: 'msg-g1-1',
-      senderId: 'system',
-      senderName: 'Hệ thống',
-      content: 'Nguyễn Văn A đã tham gia nhóm',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-      type: 'system',
-    },
-    {
-      id: 'msg-g1-2',
-      senderId: 'porter-1',
-      senderName: 'Trần Văn Porter',
-      content: 'Chào mừng mọi người đến với chuyến đi Fansipan!',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-      type: 'text',
-    },
-    {
-      id: 'msg-g1-3',
-      senderId: 'user-1',
-      senderName: 'Nguyễn Văn A',
-      content: 'Cảm ơn anh! Em rất háo hức cho chuyến đi này',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 20),
-      type: 'text',
-    },
-    {
-      id: 'msg-g1-4',
-      senderId: 'porter-1',
-      senderName: 'Trần Văn Porter',
-      content: 'Mọi người nhớ mang theo áo ấm, đèn pin và đồ ăn nhẹ nhé',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 10),
-      type: 'text',
-    },
-    {
-      id: 'msg-g1-5',
-      senderId: 'porter-1',
-      senderName: 'Trần Văn Porter',
-      content: 'Mọi người chuẩn bị đầy đủ đồ leo núi nhé!',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      type: 'text',
-    },
-  ],
-  'group-2': [
-    {
-      id: 'msg-g2-1',
-      senderId: 'porter-1',
-      senderName: 'Trần Văn Porter',
-      content: 'Chào mọi người, chuẩn bị cho chuyến săn mây Tà Xùa nhé!',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-      type: 'text',
-    },
-    {
-      id: 'msg-g2-2',
-      senderId: 'user-1',
-      senderName: 'Nguyễn Văn A',
-      content: 'Thời tiết cuối tuần này có đẹp không anh?',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      type: 'text',
-    },
-  ],
+  ...generateTripMessages(),
   'private-1': [
     {
       id: 'msg-p1-1',
