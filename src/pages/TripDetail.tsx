@@ -572,7 +572,7 @@ const TripDetail = () => {
                     {/* Discussion Button */}
                     <Button
                       variant="outline"
-                      onClick={() => navigate('/chat')}
+                      onClick={() => window.open(`/chat?tripId=${id}`, '_blank')}
                       className="w-full h-12 text-base font-medium gap-2"
                     >
                       <MessageCircle className="h-5 w-5" />
