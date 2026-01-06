@@ -1,4 +1,5 @@
 import { mockAdminUsers } from '@/data/mockUsers';
+import { mockTrips } from '@/data/mockTrips';
 
 export interface ChatMessage {
   id: string;
@@ -22,44 +23,28 @@ export interface ChatRoom {
   avatar?: string;
 }
 
-// Mock chat rooms
-export const mockChatRooms: ChatRoom[] = [
-  {
-    id: 'group-1',
-    name: 'Chinh phục Fansipan 3143m',
-    type: 'group',
-    tripId: 'trip-1',
-    tripName: 'Chinh phục Fansipan 3143m',
-    participants: ['user-1', 'porter-1', 'user-2'],
-    lastMessage: {
-      id: 'msg-1',
-      senderId: 'porter-1',
-      senderName: 'Trần Văn Porter',
-      content: 'Mọi người chuẩn bị đầy đủ đồ leo núi nhé!',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      type: 'text',
-    },
-    unreadCount: 2,
-    avatar: '/fansipan.jpg',
+// Generate chat rooms from mock trips
+const tripChatRooms: ChatRoom[] = mockTrips.map((trip) => ({
+  id: `trip-chat-${trip.id}`,
+  name: trip.name,
+  type: 'group' as const,
+  tripId: trip.id,
+  tripName: trip.name,
+  participants: [trip.organizerId, 'user-1', 'user-2'],
+  lastMessage: {
+    id: `msg-trip-${trip.id}`,
+    senderId: trip.organizerId,
+    senderName: mockAdminUsers.find(u => u.id === trip.organizerId)?.name || 'Porter',
+    content: `Chào mừng mọi người đến với chuyến đi ${trip.name}!`,
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * Math.floor(Math.random() * 48)),
+    type: 'text' as const,
   },
-  {
-    id: 'group-2',
-    name: 'Tà Xùa - Săn mây',
-    type: 'group',
-    tripId: 'trip-2',
-    tripName: 'Tà Xùa - Săn mây',
-    participants: ['user-1', 'porter-1'],
-    lastMessage: {
-      id: 'msg-2',
-      senderId: 'user-1',
-      senderName: 'Nguyễn Văn A',
-      content: 'Thời tiết cuối tuần này có đẹp không anh?',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      type: 'text',
-    },
-    unreadCount: 0,
-    avatar: '/ta-xua.png',
-  },
+  unreadCount: Math.floor(Math.random() * 5),
+  avatar: trip.image,
+}));
+
+// Additional manual chat rooms
+const manualChatRooms: ChatRoom[] = [
   {
     id: 'private-1',
     name: 'Trần Văn Porter',
@@ -91,6 +76,14 @@ export const mockChatRooms: ChatRoom[] = [
     unreadCount: 0,
   },
 ];
+
+// Mock chat rooms - combine trip rooms and manual rooms
+export const mockChatRooms: ChatRoom[] = [...tripChatRooms, ...manualChatRooms];
+
+// Helper function to get or create a chat room for a trip
+export const getChatRoomByTripId = (tripId: string): ChatRoom | undefined => {
+  return mockChatRooms.find(room => room.tripId === tripId);
+};
 
 // Mock messages for each room
 export const mockMessages: Record<string, ChatMessage[]> = {

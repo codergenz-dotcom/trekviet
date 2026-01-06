@@ -1,5 +1,6 @@
 // Chat page component
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,17 +8,38 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, MessageSquarePlus, Users, User, Info } from 'lucide-react';
 import { ChatRoomItem } from '@/components/chat/ChatRoomItem';
 import { ChatRoom } from '@/components/chat/ChatRoom';
-import { mockChatRooms, type ChatRoom as ChatRoomType } from '@/data/mockChats';
+import { mockChatRooms, getChatRoomByTripId, type ChatRoom as ChatRoomType } from '@/data/mockChats';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 export default function Chat() {
+  const [searchParams] = useSearchParams();
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'group' | 'private'>('all');
   const [showInfo, setShowInfo] = useState(false);
+
+  // Auto-select room based on URL params
+  useEffect(() => {
+    const tripId = searchParams.get('tripId');
+    const roomId = searchParams.get('roomId');
+
+    if (tripId) {
+      const room = getChatRoomByTripId(tripId);
+      if (room) {
+        setSelectedRoom(room);
+        setActiveTab('group');
+      }
+    } else if (roomId) {
+      const room = mockChatRooms.find(r => r.id === roomId);
+      if (room) {
+        setSelectedRoom(room);
+        setActiveTab(room.type === 'group' ? 'group' : 'private');
+      }
+    }
+  }, [searchParams]);
 
   const filteredRooms = mockChatRooms.filter((room) => {
     const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase());
