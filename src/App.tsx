@@ -15,7 +15,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProfileSetup from "./pages/ProfileSetup";
 import RegisterPending from "./pages/RegisterPending";
-import CreateTrip from "./pages/CreateTrip";
 import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 import TripDetail from "./pages/TripDetail";
 import MyTrips from "./pages/MyTrips";
@@ -92,8 +91,7 @@ const App = () => (
                   <AppLayout>
                     <Routes>
                       <Route path="/trips" element={<Index />} />
-                      <Route path="/create-trip" element={<CreateTrip />} />
-                      <Route path="/create-trip/self-organize" element={<CreateTripSelfOrganize />} />
+                      <Route path="/create-trip" element={<CreateTripSelfOrganize />} />
                       <Route path="/trip/:id" element={<TripDetail />} />
                       <Route path="/my-trips" element={<MyTrips />} />
                       <Route path="/chat" element={<Chat />} />
