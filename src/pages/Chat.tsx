@@ -8,42 +8,53 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, MessageSquarePlus, Users, User, Info } from 'lucide-react';
 import { ChatRoomItem } from '@/components/chat/ChatRoomItem';
 import { ChatRoom } from '@/components/chat/ChatRoom';
-import { mockChatRooms, getChatRoomByTripId, type ChatRoom as ChatRoomType } from '@/data/mockChats';
+import { mockChatRooms, getChatRoomByTripId, addUserToTripChat, getPrivateChatRooms, type ChatRoom as ChatRoomType } from '@/data/mockChats';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 export default function Chat() {
+  const { currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'group' | 'private'>('all');
   const [showInfo, setShowInfo] = useState(false);
-  const [isSingleRoomMode, setIsSingleRoomMode] = useState(false);
+  const [focusedTripRoom, setFocusedTripRoom] = useState<ChatRoomType | null>(null);
+  const [displayRooms, setDisplayRooms] = useState<ChatRoomType[]>(mockChatRooms);
 
   // Auto-select room based on URL params
   useEffect(() => {
     const tripId = searchParams.get('tripId');
     const roomId = searchParams.get('roomId');
 
-    if (tripId) {
-      const room = getChatRoomByTripId(tripId);
+    if (tripId && currentUser) {
+      // Add current user to the trip chat room
+      const room = addUserToTripChat(tripId, currentUser.id);
       if (room) {
         setSelectedRoom(room);
-        setActiveTab('group');
-        setIsSingleRoomMode(true); // Hide sidebar when coming from trip discussion
+        setFocusedTripRoom(room);
+        setActiveTab('all');
+        // Show only this trip room + private chats
+        const privateRooms = getPrivateChatRooms().filter(r => r.participants.includes(currentUser.id));
+        setDisplayRooms([room, ...privateRooms]);
       }
     } else if (roomId) {
       const room = mockChatRooms.find(r => r.id === roomId);
       if (room) {
         setSelectedRoom(room);
         setActiveTab(room.type === 'group' ? 'group' : 'private');
+        setDisplayRooms(mockChatRooms);
       }
+    } else {
+      setDisplayRooms(mockChatRooms);
+      setFocusedTripRoom(null);
     }
-  }, [searchParams]);
+  }, [searchParams, currentUser]);
 
-  const filteredRooms = mockChatRooms.filter((room) => {
+  const filteredRooms = displayRooms.filter((room) => {
     const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab =
       activeTab === 'all' ||
@@ -52,19 +63,18 @@ export default function Chat() {
     return matchesSearch && matchesTab;
   });
 
-  const groupRooms = mockChatRooms.filter((r) => r.type === 'group');
-  const privateRooms = mockChatRooms.filter((r) => r.type === 'private');
+  const groupRooms = displayRooms.filter((r) => r.type === 'group');
+  const privateRooms = displayRooms.filter((r) => r.type === 'private');
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] bg-background overflow-hidden">
-      {/* Sidebar - Chat List - Hidden in single room mode */}
-      {!isSingleRoomMode && (
-        <div
-          className={cn(
-            'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
-            selectedRoom ? 'hidden md:flex' : 'flex'
-          )}
-        >
+      {/* Sidebar - Chat List */}
+      <div
+        className={cn(
+          'w-full md:w-[320px] lg:w-[360px] xl:w-[400px] border-r flex flex-col bg-muted/30 shrink-0',
+          selectedRoom ? 'hidden md:flex' : 'flex'
+        )}
+      >
         {/* Header */}
         <div className="p-4 border-b bg-background space-y-3">
           <div className="flex items-center justify-between">
@@ -137,7 +147,6 @@ export default function Chat() {
           </ScrollArea>
         </Tabs>
         </div>
-      )}
 
       {/* Main Chat Area */}
       <div className={cn('flex-1 flex flex-col', !selectedRoom ? 'hidden md:flex' : 'flex')}>
