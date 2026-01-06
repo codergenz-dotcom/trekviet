@@ -23,14 +23,37 @@ export interface ChatRoom {
   avatar?: string;
 }
 
+const CHAT_ROOMS_STORAGE_KEY = 'viettrekking_chat_rooms';
+
+// Load saved rooms from localStorage or generate defaults
+const loadSavedRooms = (): ChatRoom[] | null => {
+  try {
+    const saved = localStorage.getItem(CHAT_ROOMS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Restore Date objects
+      return parsed.map((room: any) => ({
+        ...room,
+        lastMessage: room.lastMessage ? {
+          ...room.lastMessage,
+          timestamp: new Date(room.lastMessage.timestamp)
+        } : undefined
+      }));
+    }
+  } catch (e) {
+    console.error('Error loading chat rooms from localStorage:', e);
+  }
+  return null;
+};
+
 // Generate chat rooms from mock trips
-const tripChatRooms: ChatRoom[] = mockTrips.map((trip) => ({
+const generateTripChatRooms = (): ChatRoom[] => mockTrips.map((trip) => ({
   id: `trip-chat-${trip.id}`,
   name: trip.name,
   type: 'group' as const,
   tripId: trip.id,
   tripName: trip.name,
-  participants: [trip.organizerId, 'user-1', 'user-2'],
+  participants: [trip.organizerId],
   lastMessage: {
     id: `msg-trip-${trip.id}`,
     senderId: trip.organizerId,
@@ -39,7 +62,7 @@ const tripChatRooms: ChatRoom[] = mockTrips.map((trip) => ({
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * Math.floor(Math.random() * 48)),
     type: 'text' as const,
   },
-  unreadCount: Math.floor(Math.random() * 5),
+  unreadCount: 0,
   avatar: trip.image,
 }));
 
@@ -77,8 +100,48 @@ const manualChatRooms: ChatRoom[] = [
   },
 ];
 
-// Mock chat rooms - combine trip rooms and manual rooms
-export const mockChatRooms: ChatRoom[] = [...tripChatRooms, ...manualChatRooms];
+// Initialize chat rooms - load from storage or generate defaults
+const initChatRooms = (): ChatRoom[] => {
+  const saved = loadSavedRooms();
+  if (saved) return saved;
+  return [...generateTripChatRooms(), ...manualChatRooms];
+};
+
+// Mutable chat rooms array
+export let mockChatRooms: ChatRoom[] = initChatRooms();
+
+// Save rooms to localStorage
+const saveChatRooms = () => {
+  try {
+    localStorage.setItem(CHAT_ROOMS_STORAGE_KEY, JSON.stringify(mockChatRooms));
+  } catch (e) {
+    console.error('Error saving chat rooms to localStorage:', e);
+  }
+};
+
+// Add a user to a trip's chat room
+export const addUserToTripChat = (tripId: string, userId: string): ChatRoom | undefined => {
+  const roomIndex = mockChatRooms.findIndex(room => room.tripId === tripId);
+  if (roomIndex === -1) return undefined;
+  
+  const room = mockChatRooms[roomIndex];
+  if (!room.participants.includes(userId)) {
+    room.participants = [...room.participants, userId];
+    mockChatRooms = [...mockChatRooms]; // Trigger re-render
+    saveChatRooms();
+  }
+  return room;
+};
+
+// Get rooms that a user is participating in
+export const getUserChatRooms = (userId: string): ChatRoom[] => {
+  return mockChatRooms.filter(room => room.participants.includes(userId));
+};
+
+// Get private rooms only
+export const getPrivateChatRooms = (): ChatRoom[] => {
+  return mockChatRooms.filter(room => room.type === 'private');
+};
 
 // Helper function to get or create a chat room for a trip
 export const getChatRoomByTripId = (tripId: string): ChatRoom | undefined => {
