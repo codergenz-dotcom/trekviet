@@ -129,6 +129,7 @@ const getMyCreatedTrips = (userId: string): MyTrip[] => {
         image: t.image || t.images?.[0] || '',
         difficulty: (t.difficulty || 'medium') as Difficulty,
         departureDate: t.departureDate || new Date().toISOString().split('T')[0],
+        registrationDeadline: t.departureDate || new Date().toISOString().split('T')[0],
         duration: t.durationType === 'single-day' ? '1 ngày' : `${t.durationDays || 2} ngày`,
         tripType: 'trekking' as TripType,
         spotsRemaining: (t.maxParticipants || 20) - (t.participants || 0),
