@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle, Check, X, Users } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, ExternalLink, CheckCircle, Check, X, Users, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -568,6 +568,16 @@ const TripDetail = () => {
                         Tham gia
                       </Button>
                     )}
+
+                    {/* Discussion Button */}
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/chat')}
+                      className="w-full h-12 text-base font-medium gap-2"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      Thảo luận
+                    </Button>
                   </div>
                 </div>
               </TabsContent>
