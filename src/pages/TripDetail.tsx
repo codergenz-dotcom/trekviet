@@ -439,7 +439,10 @@ const TripDetail = () => {
                         return organizer ? (
                           <div className="pt-4 border-t border-border">
                             <h3 className="font-medium text-foreground mb-3">Người tổ chức:</h3>
-                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                            <div 
+                              className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border cursor-pointer hover:bg-muted/80 transition-colors"
+                              onClick={() => window.open(`/profile/${organizer.id}`, '_blank')}
+                            >
                               <Avatar className="h-10 w-10">
                                 <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                                   {organizer.name.charAt(0).toUpperCase()}
@@ -470,14 +473,6 @@ const TripDetail = () => {
                           <span>{createdTrip?.contactPhone || "0123 456 789"} (Zalo)</span>
                         </div>
                       </div>
-                      {(createdTrip?.discussionLink || !createdTrip) && (
-                        <div className="flex items-center gap-2">
-                          <ExternalLink className="h-4 w-4 text-primary" />
-                          <a href={createdTrip?.discussionLink || "#"} className="text-primary hover:underline">
-                            Link nhóm thảo luận
-                          </a>
-                        </div>
-                      )}
                     </div>
                   </div>
 
