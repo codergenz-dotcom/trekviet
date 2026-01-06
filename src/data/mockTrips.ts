@@ -180,6 +180,7 @@ export interface CompletedTrip extends Trip {
   completedDate: string;
   hasReviewed: boolean;
   participantId: string;
+  originalTripId?: string;
 }
 
 export const mockCompletedTrips: CompletedTrip[] = [

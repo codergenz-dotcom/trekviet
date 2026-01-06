@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, CheckCircle, Check, X, Users, MessageCircle, Star } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, User, Backpack, Phone, Mail, CheckCircle, Check, X, Users, MessageCircle, Star, Play, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -178,6 +178,42 @@ const getReviewsByTripId = (tripId: string): TripReview[] => {
   }
 };
 
+type TripStatus = 'upcoming' | 'in_progress' | 'completed';
+
+interface TripStatusData {
+  tripId: string;
+  status: TripStatus;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+const getTripStatus = (tripId: string): TripStatusData | null => {
+  try {
+    const stored = localStorage.getItem('tripStatuses');
+    if (!stored) return null;
+    const statuses: TripStatusData[] = JSON.parse(stored);
+    return statuses.find(s => s.tripId === tripId) || null;
+  } catch {
+    return null;
+  }
+};
+
+const saveTripStatus = (data: TripStatusData) => {
+  try {
+    const stored = localStorage.getItem('tripStatuses');
+    const statuses: TripStatusData[] = stored ? JSON.parse(stored) : [];
+    const existingIndex = statuses.findIndex(s => s.tripId === data.tripId);
+    if (existingIndex >= 0) {
+      statuses[existingIndex] = data;
+    } else {
+      statuses.push(data);
+    }
+    localStorage.setItem('tripStatuses', JSON.stringify(statuses));
+  } catch {
+    console.error('Failed to save trip status');
+  }
+};
+
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -216,7 +252,10 @@ const TripDetail = () => {
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showStartDialog, setShowStartDialog] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [tripStatus, setTripStatus] = useState<TripStatusData | null>(null);
   const { toast } = useToast();
   const { currentUser } = useAuth();
 
@@ -224,6 +263,8 @@ const TripDetail = () => {
     if (id) {
       const storedRegs = getRegistrationsByTripId(id);
       setRegistrations(storedRegs);
+      const storedStatus = getTripStatus(id);
+      setTripStatus(storedStatus);
     }
   }, [id]);
 
@@ -325,11 +366,70 @@ const TripDetail = () => {
     });
   };
 
+  const handleStartTrip = () => {
+    const newStatus: TripStatusData = {
+      tripId: id!,
+      status: 'in_progress',
+      startedAt: new Date().toISOString(),
+    };
+    saveTripStatus(newStatus);
+    setTripStatus(newStatus);
+    setShowStartDialog(false);
+    toast({
+      title: "Đã bắt đầu chuyến đi",
+      description: "Chuyến đi đã được đánh dấu là đang diễn ra.",
+    });
+  };
+
+  const handleCompleteTrip = () => {
+    const newStatus: TripStatusData = {
+      tripId: id!,
+      status: 'completed',
+      startedAt: tripStatus?.startedAt,
+      completedAt: new Date().toISOString(),
+    };
+    saveTripStatus(newStatus);
+    setTripStatus(newStatus);
+    setShowCompleteDialog(false);
+
+    // Add to completed trips in localStorage for participants
+    if (trip && approvedRegistrations.length > 0) {
+      try {
+        const stored = localStorage.getItem('completedTripsFromOrganizer');
+        const completedTrips = stored ? JSON.parse(stored) : [];
+        
+        approvedRegistrations.forEach(reg => {
+          const completedTrip = {
+            ...trip,
+            id: `completed-${trip.id}-${reg.userId}`,
+            originalTripId: trip.id,
+            completedDate: new Date().toISOString().split('T')[0],
+            hasReviewed: false,
+            participantId: reg.userId,
+          };
+          completedTrips.push(completedTrip);
+        });
+        
+        localStorage.setItem('completedTripsFromOrganizer', JSON.stringify(completedTrips));
+      } catch {
+        console.error('Failed to save completed trips');
+      }
+    }
+
+    toast({
+      title: "Đã hoàn thành chuyến đi",
+      description: "Chuyến đi đã được chuyển vào danh sách hoàn thành.",
+    });
+  };
+
   const pendingRegistrations = registrations.filter((r) => r.status === "pending");
   const approvedRegistrations = registrations.filter((r) => r.status === "approved");
   const rejectedRegistrations = registrations.filter((r) => r.status === "rejected");
 
   const currentUserRegistration = registrations.find(r => r.userId === currentUser?.id);
+
+  const isTripInProgress = tripStatus?.status === 'in_progress';
+  const isTripCompleted = tripStatus?.status === 'completed';
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
@@ -540,20 +640,46 @@ const TripDetail = () => {
 
                     {isOrganizer ? (
                       <div className="space-y-2">
-                        <Button
-                          onClick={() => navigate(`/create-trip/self-organize?edit=${id}`)}
-                          variant="outline"
-                          className="w-full h-12 text-base font-semibold"
-                        >
-                          Chỉnh sửa chuyến đi
-                        </Button>
-                        <Button
-                          onClick={() => setShowCancelDialog(true)}
-                          variant="destructive"
-                          className="w-full h-12 text-base font-semibold"
-                        >
-                          Hủy chuyến đi
-                        </Button>
+                        {isTripCompleted ? (
+                          <div className="w-full h-12 flex items-center justify-center rounded-md border bg-green-50 border-green-200">
+                            <Badge className="bg-green-100 text-green-800 border-0 text-sm">
+                              <Flag className="h-4 w-4 mr-1" />
+                              Đã hoàn thành
+                            </Badge>
+                          </div>
+                        ) : isTripInProgress ? (
+                          <Button
+                            onClick={() => setShowCompleteDialog(true)}
+                            className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700"
+                          >
+                            <Flag className="h-5 w-5 mr-2" />
+                            Đánh dấu hoàn thành
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => setShowStartDialog(true)}
+                              className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700"
+                            >
+                              <Play className="h-5 w-5 mr-2" />
+                              Bắt đầu chuyến đi
+                            </Button>
+                            <Button
+                              onClick={() => navigate(`/create-trip/self-organize?edit=${id}`)}
+                              variant="outline"
+                              className="w-full h-12 text-base font-semibold"
+                            >
+                              Chỉnh sửa chuyến đi
+                            </Button>
+                            <Button
+                              onClick={() => setShowCancelDialog(true)}
+                              variant="destructive"
+                              className="w-full h-12 text-base font-semibold"
+                            >
+                              Hủy chuyến đi
+                            </Button>
+                          </>
+                        )}
                       </div>
                     ) : currentUserRegistration ? (
                       <div className="space-y-2">
@@ -985,6 +1111,48 @@ const TripDetail = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Xác nhận hủy
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Start Trip Confirmation Dialog */}
+      <AlertDialog open={showStartDialog} onOpenChange={setShowStartDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận bắt đầu chuyến đi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn bắt đầu chuyến đi này không? Sau khi bắt đầu, bạn sẽ không thể chỉnh sửa hoặc hủy chuyến đi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleStartTrip}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Xác nhận bắt đầu
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Complete Trip Confirmation Dialog */}
+      <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận hoàn thành chuyến đi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn đánh dấu chuyến đi này là đã hoàn thành không? Chuyến đi sẽ được chuyển vào danh sách hoàn thành và người tham gia có thể đánh giá.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCompleteTrip}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Xác nhận hoàn thành
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

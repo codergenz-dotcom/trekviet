@@ -207,11 +207,45 @@ const MyTrips = () => {
     if (currentUser?.id) {
       setMyTrips(getMyCreatedTrips(currentUser.id));
       setJoinedTrips(getMyJoinedTrips(currentUser.id));
-      // Filter completed trips by participantId
-      const userCompletedTrips = mockCompletedTrips.filter(
+      
+      // Get completed trips from mock data
+      const mockUserCompletedTrips = mockCompletedTrips.filter(
         trip => trip.participantId === currentUser.id
       );
-      setCompletedTrips(userCompletedTrips);
+      
+      // Get completed trips from organizer actions (localStorage)
+      let organizerCompletedTrips: CompletedTrip[] = [];
+      try {
+        const stored = localStorage.getItem('completedTripsFromOrganizer');
+        if (stored) {
+          const allCompleted = JSON.parse(stored);
+          organizerCompletedTrips = allCompleted.filter(
+            (trip: CompletedTrip) => trip.participantId === currentUser.id
+          );
+        }
+      } catch {
+        console.error('Failed to load completed trips from organizer');
+      }
+      
+      // Merge and dedupe by id
+      const allCompleted = [...mockUserCompletedTrips, ...organizerCompletedTrips];
+      const uniqueCompleted = allCompleted.filter(
+        (trip, index, self) => index === self.findIndex(t => t.id === trip.id)
+      );
+      
+      // Check reviewed status from localStorage
+      const storedReviews = localStorage.getItem('tripReviews');
+      const reviews = storedReviews ? JSON.parse(storedReviews) : [];
+      const reviewedTripIds = reviews
+        .filter((r: { userId: string }) => r.userId === currentUser.id)
+        .map((r: { tripId: string }) => r.tripId);
+      
+      const completedWithReviewStatus = uniqueCompleted.map(trip => ({
+        ...trip,
+        hasReviewed: reviewedTripIds.includes(trip.id) || reviewedTripIds.includes(trip.originalTripId),
+      }));
+      
+      setCompletedTrips(completedWithReviewStatus);
     }
   }, [currentUser?.id]);
 
