@@ -1,11 +1,42 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Mail, MapPin, Calendar, Award, Facebook, Instagram } from 'lucide-react';
+import { ArrowLeft, User, Mail, MapPin, Calendar, Award, Facebook, Instagram, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { mockAdminUsers } from '@/data/mockUsers';
+import { mockTrips, difficultyLabels, type Trip } from '@/data/mockTrips';
+
+interface CreatedTrip {
+  id: string;
+  name: string;
+  location: string;
+  difficulty: string;
+  departureDate?: string | Date;
+  image?: string;
+  images?: string[];
+  status: string;
+  createdBy?: string;
+}
+
+const getCreatedTrips = (): CreatedTrip[] => {
+  try {
+    const stored = localStorage.getItem('createdTrips');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const formatDate = (dateStr: string | Date) => {
+  const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -16,6 +47,22 @@ const PublicProfile = () => {
   // Try to get saved profile from localStorage
   const savedProfile = userId ? localStorage.getItem(`userProfile_${userId}`) : null;
   const profileData = savedProfile ? JSON.parse(savedProfile) : null;
+
+  // Get trips organized by this user
+  const mockOrganizedTrips = mockTrips.filter(t => t.organizerId === userId);
+  const createdTrips = getCreatedTrips().filter(t => t.createdBy === userId);
+  
+  const organizedTrips = [
+    ...mockOrganizedTrips,
+    ...createdTrips.map(t => ({
+      id: t.id,
+      name: t.name,
+      location: t.location,
+      difficulty: t.difficulty as Trip['difficulty'],
+      departureDate: typeof t.departureDate === 'string' ? t.departureDate : t.departureDate?.toISOString().split('T')[0] || '',
+      image: t.image || t.images?.[0] || '',
+    }))
+  ];
 
   if (!user) {
     return (
@@ -36,7 +83,7 @@ const PublicProfile = () => {
 
   const stats = [
     { label: 'Chuyến đi', value: user.tripsJoined + user.tripsCreated },
-    { label: 'Đã tạo', value: user.tripsCreated },
+    { label: 'Đã tạo', value: organizedTrips.length || user.tripsCreated },
     { label: 'Tham gia', value: user.createdAt ? new Date(user.createdAt).getFullYear() : '2024' },
   ];
 
@@ -169,6 +216,73 @@ const PublicProfile = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Organized Trips - Only show for porters with trips */}
+      {(user.role === 'porter' || user.role === 'admin') && organizedTrips.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Mountain className="h-5 w-5 text-primary" />
+              Chuyến đi đã tổ chức ({organizedTrips.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {organizedTrips.map((trip) => (
+                <div
+                  key={trip.id}
+                  className="flex items-center gap-4 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => navigate(`/trip/${trip.id}`)}
+                >
+                  <div className="w-16 h-16 rounded-lg bg-muted overflow-hidden shrink-0">
+                    {trip.image ? (
+                      <img src={trip.image} alt={trip.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Mountain className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-foreground truncate">{trip.name}</h4>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {trip.location}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {difficultyLabels[trip.difficulty as keyof typeof difficultyLabels] || trip.difficulty}
+                      </Badge>
+                      {trip.departureDate && (
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(trip.departureDate)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty state for porters with no trips */}
+      {(user.role === 'porter' || user.role === 'admin') && organizedTrips.length === 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Mountain className="h-5 w-5 text-primary" />
+              Chuyến đi đã tổ chức
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Chưa có chuyến đi nào được tổ chức.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
