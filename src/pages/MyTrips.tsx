@@ -249,16 +249,35 @@ const MyTrips = () => {
   };
 
   const handleSubmitReview = (tripId: string, rating: number, feedback: string) => {
+    const trip = completedTrips.find(t => t.id === tripId);
+    if (!trip || !currentUser) return;
+
     // Update the trip as reviewed
     setCompletedTrips(prev => 
-      prev.map(trip => 
-        trip.id === tripId ? { ...trip, hasReviewed: true } : trip
+      prev.map(t => 
+        t.id === tripId ? { ...t, hasReviewed: true } : t
       )
     );
     
-    // Save review to localStorage for demo
-    const reviews = JSON.parse(localStorage.getItem('tripReviews') || '{}');
-    reviews[tripId] = { rating, feedback, reviewedAt: new Date().toISOString() };
+    // Save review to localStorage with full info
+    const storedReviews = localStorage.getItem('tripReviews');
+    const reviews = storedReviews ? JSON.parse(storedReviews) : [];
+    
+    const newReview = {
+      id: `review-${Date.now()}`,
+      tripId,
+      tripName: trip.name,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userAvatar: currentUser.avatar || '',
+      organizerId: trip.organizerId,
+      rating,
+      feedback,
+      createdAt: new Date().toISOString(),
+      isVisible: true,
+    };
+    
+    reviews.push(newReview);
     localStorage.setItem('tripReviews', JSON.stringify(reviews));
   };
 
