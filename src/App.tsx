@@ -19,6 +19,7 @@ import CreateTripSelfOrganize from "./pages/CreateTripSelfOrganize";
 import TripDetail from "./pages/TripDetail";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
+import PublicProfile from "./pages/PublicProfile";
 import Chat from "./pages/Chat";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPorters from "./pages/admin/AdminPorters";
@@ -96,6 +97,7 @@ const App = () => (
                       <Route path="/my-trips" element={<MyTrips />} />
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/profile" element={<Profile />} />
+                      <Route path="/profile/:userId" element={<PublicProfile />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
